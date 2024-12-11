@@ -1,5 +1,5 @@
 import { Commuter } from "../../commuter/model/commuterModel.mjs";
-import { TripCapacity } from "../../tripCapacity/model/tripCapacityModel.mjs";
+import { TripDuplication } from "../../tripDuplication/model/tripDuplicationModel.mjs";
 
 export const bookingSchema = {
   commuter: {
@@ -28,10 +28,11 @@ export const bookingSchema = {
     },
     custom: {
       options: async (value, { request }) => {
-        const tripCapacity = await TripCapacity.findOne({ tripId: value });
-        if (!tripCapacity) {
+        const tripDuplication = await TripDuplication.findOne({ tripId: value });
+        if (!tripDuplication)
           throw new Error("trip does not exist in the database");
-        }
+        else if (tripDuplication.bookingStatus !== "ENABLED")
+          throw new Error("booking cannot be created for this trip at this time.");
         return true;
       },
     },

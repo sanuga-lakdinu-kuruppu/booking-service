@@ -1,6 +1,6 @@
 import { Commuter } from "../../commuter/model/commuterModel.mjs";
 import { Booking } from "../model/bookingModel.mjs";
-import { TripCapacity } from "../../tripCapacity/model/tripCapacityModel.mjs";
+import { TripDuplication } from "../../tripDuplication/model/tripDuplicationModel.mjs";
 import AWS from "aws-sdk";
 
 const eventBridge = new AWS.EventBridge({
@@ -9,12 +9,12 @@ const eventBridge = new AWS.EventBridge({
 
 export const createNewBooking = async (booking) => {
   try {
-    const foundTripCapacity = await TripCapacity.findOne({
+    const foundTripDuplication = await TripDuplication.findOne({
       tripId: booking.trip,
     });
     if (
       booking.seatNumber < 1 ||
-      booking.seatNumber > foundTripCapacity.capacity
+      booking.seatNumber > foundTripDuplication.capacity
     )
       return "SEAT_NOT_IN_THE_VALID_RANGE";
 
