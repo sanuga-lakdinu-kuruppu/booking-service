@@ -33,7 +33,7 @@ router.post(
       if (createdBooking === "SEAT_NOT_IN_THE_VALID_RANGE")
         return response
           .status(400)
-          .send({ error: "seat is not in the valid range" });
+          .send({ error: "seat is outside of the expected capacity" });
       return response.status(201).send(createdBooking);
     } catch (error) {
       console.log(`booking creation error ${error}`);
