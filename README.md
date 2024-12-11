@@ -1,4 +1,4 @@
-# booking-service - v1.1.0
+# booking-service - v1.2.0
 
 YR3COBSCCOMP232P002
 
@@ -6,6 +6,6 @@ YR3COBSCCOMP232P002
 
 ###### access url: https://api.busriya.com
 
-###### example: https://api.busriya.com/booking-service/v1.1/commuters
+###### example: https://api.busriya.com/booking-service/v1.2/commuters
 
 ###### swagger definition: https://api.busriya.com/booking-service/api-docs

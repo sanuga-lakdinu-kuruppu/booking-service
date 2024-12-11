@@ -1,6 +1,6 @@
 {
   "name": "booking-service",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "main": "index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -13,6 +13,7 @@
   "description": "api for booking services in the busriya system",
   "type": "module",
   "dependencies": {
+    "aws-sdk": "^2.1692.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.1",
     "express-validator": "^7.2.0",
