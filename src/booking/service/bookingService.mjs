@@ -28,7 +28,7 @@ export const createNewBooking = async (booking) => {
     });
     if (foundBookingForThisSeat) return "SEAT_IS_ALREADY_USED";
 
-    // const bookingWaiting = process.env.BOOKING_WAITING || 10;
+    const bookingWaiting = process.env.BOOKING_WAITING || 10;
 
     booking.trip = {
       tripId: booking.trip,
@@ -36,13 +36,21 @@ export const createNewBooking = async (booking) => {
     booking.commuter = foundCommuter._id;
     booking.ticketStatus = "NOT_USED";
     booking.bookingStatus = "CREATING";
-    // booking.expiryAt = new Date(Date.now() + bookingWaiting * 60 * 1000);
+    booking.expiryAt = new Date(Date.now() + bookingWaiting * 60 * 1000);
 
     const newBooking = new Booking(booking);
     const savedBooking = await newBooking.save();
     console.log(`booking saved successfully :)`);
 
     await triggerBookingCreatedEvent(booking);
+    await triggerEventForBookingExpiration(
+      bookingWaiting,
+      booking.bookingId,
+      booking.trip.tripId,
+      booking.seatNumber
+    );
+
+    //need to send otp for commuter verification
 
     const populatedBooking = await Booking.findById(savedBooking._id)
       .select(
@@ -56,6 +64,42 @@ export const createNewBooking = async (booking) => {
   } catch (error) {
     console.log(`booking creation error ${error}`);
     return null;
+  }
+};
+
+const triggerEventForBookingExpiration = async (
+  delay,
+  bookingId,
+  tripId,
+  seatNumber
+) => {
+  try {
+    const futureTimestamp = new Date(
+      Date.now() + delay * 60 * 1000
+    ).toISOString();
+
+    const eventParams = {
+      Entries: [
+        {
+          Source: "booking-service",
+          DetailType: "BOOKING_SUPPORT_SERVICE",
+          Detail: JSON.stringify({
+            internalEventType:
+              "EVN_BOOKING_CREATED_FOR_DELAYED_BOOKING_CHECKING",
+            bookingId: bookingId,
+            tripId: tripId,
+            seatNumber: seatNumber,
+          }),
+          EventBusName: "busriya.com_event_bus",
+          Timestamp: new Date(futureTimestamp),
+        },
+      ],
+    };
+    await eventBridge.putEvents(eventParams).promise();
+  } catch (error) {
+    console.log(
+      `trip creation expiration checking event triggering error ${error}`
+    );
   }
 };
 
