@@ -9,7 +9,7 @@ const swaggerOptions = {
     openapi: "3.0.0",
     info: {
       title: "BOOKING-SERVICE [BUSRIYA.COM]",
-      version: "1.2.0",
+      version: "1.2.2",
       description: "Apis for booking services in the busriya system",
       contact: {
         name: "Sanuga Kuruppu [YR3COBSCCOMP232P002]",

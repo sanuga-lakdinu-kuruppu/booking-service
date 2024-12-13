@@ -19,9 +19,9 @@ app.use(express.json());
 
 app.use(routes);
 
-// const PORT = process.env.PORT || 5002;
-// app.listen(PORT, () => {
-//   console.log(`booking-service is up and running on port ${PORT}`);
-// });
+const PORT = process.env.PORT || 5002;
+app.listen(PORT, () => {
+  console.log(`booking-service is up and running on port ${PORT}`);
+});
 
-export const handler = serverless(app);
+// export const handler = serverless(app);
