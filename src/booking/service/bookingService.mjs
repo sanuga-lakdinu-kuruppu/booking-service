@@ -94,7 +94,10 @@ export const createNewBooking = async (booking) => {
         path: "commuter",
         select: "commuterId name nic contact -_id",
       });
-    populatedBooking.verificationId = savedOtpVerification.verificationId;
+    populatedBooking = {
+      ...populatedBooking,
+      verificationId: optVerification.verificationId,
+    };
     return populatedBooking;
   } catch (error) {
     console.log(`booking creation error ${error}`);
@@ -104,7 +107,7 @@ export const createNewBooking = async (booking) => {
 
 const sendOtpEmail = async (toEmail, emailBody) => {
   const params = {
-    Source: process.env.EMAIL_FROM, 
+    Source: process.env.EMAIL_FROM,
     Destination: {
       ToAddresses: [toEmail],
     },
@@ -164,7 +167,6 @@ const triggerEventForBookingExpiration = async (
         RoleArn: process.env.SCHEDULER_ROLE_ARN,
         Input: JSON.stringify(inputPayload),
       },
-      ScheduleExpressionTimezone: process.env.TIME_ZONE,
       Description: `Trigger for booking expiration - ${bookingId}`,
     };
 
