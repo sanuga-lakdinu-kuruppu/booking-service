@@ -13,6 +13,7 @@
   "description": "api for booking services in the busriya system",
   "type": "module",
   "dependencies": {
+    "@aws-sdk/client-scheduler": "^3.712.0",
     "aws-sdk": "^2.1692.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.1",
