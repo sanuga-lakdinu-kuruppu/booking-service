@@ -7,10 +7,6 @@ const eventBridge = new AWS.EventBridge({
   region: process.env.FINAL_AWS_REGION,
 });
 
-const eventBridgeScheduler = new AWS.EventBridgeScheduler({
-  region: process.env.FINAL_AWS_REGION,
-});
-
 export const createNewBooking = async (booking) => {
   try {
     const foundTripDuplication = await TripDuplication.findOne({
@@ -78,44 +74,42 @@ const triggerEventForBookingExpiration = async (
   seatNumber
 ) => {
   try {
-    const futureTime = new Date(Date.now() + delay * 60 * 1000); // Future expiration time based on delay
+    const futureTime = new Date(Date.now() + delay * 60 * 1000).toISOString();
 
-    // Define the name for the scheduled event
-    const scheduledEventName = `booking-expiration-${bookingId}`;
+    const ruleName = `booking-expiration-${bookingId}`;
+    const eventBusName = "default";
 
-    // Create the input for the scheduled event
-    const input = JSON.stringify({
-      internalEventType: "EVN_BOOKING_CREATED_FOR_DELAYED_BOOKING_CHECKING",
-      bookingId: bookingId,
-      tripId: tripId,
-      seatNumber: seatNumber,
-    });
-
-    // Set up the scheduled event
-    
-    const params = {
-      Name: scheduledEventName,
-      Schedule: {
-        // Set a time when the event should be triggered
-        // Use the future time (calculated based on `delay`)
-        // Example: cron expression or specific timestamp (ISO 8601 format)
-        FlexibleTimeWindow: {
-          StartTime: futureTime.toISOString(), // Future time when the event should trigger
-          EndTime: futureTime.toISOString(), // End time (same as start for immediate trigger)
-        },
-      },
-      Target: {
-        Arn: process.env.BOOKING_SUPPORT_SERVICE_ARN, // The target ARN for the event
-        Input: input,
-      },
+    const ruleParams = {
+      Name: ruleName,
+      ScheduleExpression: `rate(1 minute)`,
+      State: "ENABLED",
+      Description: "Rule to trigger delayed booking expiration",
+      EventBusName: eventBusName,
     };
+    await eventBridge.putRule(ruleParams).promise();
 
-    // Schedule the event
-    await eventBridgeScheduler.putScheduledEvent(params).promise();
+    const targetParams = {
+      Rule: ruleName,
+      EventBusName: eventBusName,
+      Targets: [
+        {
+          Id: `target-${bookingId}`,
+          Arn: process.env.BOOKING_SUPPORT_SERVICE_ARN,
+          Input: JSON.stringify({
+            internalEventType:
+              "EVN_BOOKING_CREATED_FOR_DELAYED_BOOKING_CHECKING",
+            bookingId: bookingId,
+            tripId: tripId,
+            seatNumber: seatNumber,
+          }),
+        },
+      ],
+    };
+    await eventBridge.putTargets(targetParams).promise();
 
-    console.log(`Scheduled event ${scheduledEventName} successfully for booking expiration.`);
+    console.log(`Scheduled rule ${ruleName} created successfully`);
   } catch (error) {
-    console.error(`Error creating delayed event using EventBridge Scheduler: ${error.message}`);
+    console.error(`Error creating delayed event: ${error.message}`);
   }
 };
 
