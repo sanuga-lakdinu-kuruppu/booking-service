@@ -81,7 +81,7 @@ export const createNewBooking = async (booking) => {
     //need to send otp for commuter verification
     const emailBody = getEmailBodyForCommuterVerification(
       otp,
-      savedBooking.commuter.name.firstName,
+      foundCommuter.name.firstName,
       otpWaiting
     );
     await sendOtpEmail(foundCommuter.contact.email, emailBody);
