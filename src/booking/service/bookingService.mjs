@@ -78,7 +78,6 @@ export const createNewBooking = async (booking) => {
     const savedOtpVerification = await newOtpVerification.save();
     console.log(`opt Verification saved successfully :)`);
 
-    //need to send otp for commuter verification
     const emailBody = getEmailBodyForCommuterVerification(
       otp,
       foundCommuter.name.firstName,
@@ -94,11 +93,11 @@ export const createNewBooking = async (booking) => {
         path: "commuter",
         select: "commuterId name nic contact -_id",
       });
-    populatedBooking = {
+    const returnBooking = {
       ...populatedBooking,
       verificationId: optVerification.verificationId,
     };
-    return populatedBooking;
+    return returnBooking;
   } catch (error) {
     console.log(`booking creation error ${error}`);
     return null;
@@ -125,7 +124,7 @@ const sendOtpEmail = async (toEmail, emailBody) => {
 
   try {
     const emailResponse = await ses.sendEmail(params).promise();
-    console.log("Email sent successfully :)", emailResponse);
+    console.log("Email sent successfully :)");
   } catch (error) {
     console.error("Error sending email :)", error);
   }
