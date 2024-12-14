@@ -47,6 +47,8 @@ const optVerificationSchema = new mongoose.Schema(
   }
 );
 
+optVerificationSchema.index({ expiryAt: 1 }, { expireAfterSeconds: 0 });
+
 export const OtpVerification = mongoose.model(
   "OtpVerification",
   optVerificationSchema
