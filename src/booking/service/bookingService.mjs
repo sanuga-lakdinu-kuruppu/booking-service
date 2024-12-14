@@ -74,34 +74,45 @@ const triggerEventForBookingExpiration = async (
   seatNumber
 ) => {
   try {
-    const futureTimestamp = new Date(
-      Date.now() + delay * 60 * 1000
-    ).toISOString();
+    const futureTime = new Date(Date.now() + delay * 60 * 1000).toISOString();
 
-    const eventParams = {
-      Entries: [
+    const ruleName = `booking-expiration-${bookingId}`;
+    const eventBusName = "busriya.com_event_bus";
+
+    const ruleParams = {
+      Name: ruleName,
+      ScheduleExpression: `at(${futureTime})`,
+      State: "ENABLED",
+      Description: "Rule to trigger delayed booking expiration",
+      EventBusName: eventBusName,
+    };
+    await eventBridge.putRule(ruleParams).promise();
+
+    const targetParams = {
+      Rule: ruleName,
+      EventBusName: eventBusName,
+      Targets: [
         {
-          Source: "booking-service",
-          DetailType: "BOOKING_SUPPORT_SERVICE",
-          Detail: JSON.stringify({
+          Id: `target-${bookingId}`,
+          Arn: process.env.BOOKING_SUPPORT_SERVICE_ARN,
+          Input: JSON.stringify({
             internalEventType:
               "EVN_BOOKING_CREATED_FOR_DELAYED_BOOKING_CHECKING",
             bookingId: bookingId,
             tripId: tripId,
             seatNumber: seatNumber,
           }),
-          EventBusName: "busriya.com_event_bus",
-          Timestamp: new Date(futureTimestamp),
         },
       ],
     };
-    await eventBridge.putEvents(eventParams).promise();
+    await eventBridge.putTargets(targetParams).promise();
+
+    console.log(`Scheduled rule ${ruleName} created successfully`);
   } catch (error) {
-    console.log(
-      `trip creation expiration checking event triggering error ${error}`
-    );
+    console.error(`Error creating delayed event: ${error.message}`);
   }
 };
+
 
 const triggerBookingCreatedEvent = async (booking) => {
   try {
