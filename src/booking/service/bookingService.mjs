@@ -1,11 +1,14 @@
 import { Commuter } from "../../commuter/model/commuterModel.mjs";
 import { Booking } from "../model/bookingModel.mjs";
+import { OtpVerification } from "../../otpVerification/model/otpVerificationModel.mjs";
 import { TripDuplication } from "../../tripDuplication/model/tripDuplicationModel.mjs";
 import AWS from "aws-sdk";
 import {
   SchedulerClient,
   CreateScheduleCommand,
 } from "@aws-sdk/client-scheduler";
+import { generateShortUuid, generateOtp } from "../../common/util/unique.mjs";
+const ses = new AWS.SES();
 
 const eventBridge = new AWS.EventBridge({
   region: process.env.FINAL_AWS_REGION,
@@ -58,7 +61,24 @@ export const createNewBooking = async (booking) => {
       booking.seatNumber
     );
 
+    const otpWaiting = process.env.OTP_WAITING || 10;
+
+    const otp = generateOtp();
+    const optVerification = {
+      verificationId: generateShortUuid(),
+      otp: otp,
+      expiryAt: new Date(Date.now() + otpWaiting  * 60 * 1000),
+      booking: booking.bookingId,
+      status: "NOT_VERIFIED",
+      type: "COMMUTER_VERIFICATION",
+    };
+
+    const newOtpVerification = new OtpVerification(optVerification);
+    const savedOtpVerification = await newOtpVerification.save();
+    console.log(`opt Verification saved successfully :)`);
+
     //need to send otp for commuter verification
+    await sendOtpEmail(foundCommuter.contact.email, otp);
 
     const populatedBooking = await Booking.findById(savedBooking._id)
       .select(
@@ -68,10 +88,37 @@ export const createNewBooking = async (booking) => {
         path: "commuter",
         select: "commuterId name nic contact -_id",
       });
+    populatedBooking.verificationId = savedOtpVerification.verificationId;
     return populatedBooking;
   } catch (error) {
     console.log(`booking creation error ${error}`);
     return null;
+  }
+};
+
+const sendOtpEmail = async (toEmail, otp) => {
+  const params = {
+    Source: process.env.EMAIL_FROM,
+    Destination: {
+      ToAddresses: [toEmail],
+    },
+    Message: {
+      Subject: {
+        Data: "OTP for Commuter Verification",
+      },
+      Body: {
+        Text: {
+          Data: `Your OTP for commuter verification is: ${otp}. This OTP will expire soon.`,
+        },
+      },
+    },
+  };
+
+  try {
+    const emailResponse = await ses.sendEmail(params).promise();
+    console.log("Email sent successfully :)", emailResponse);
+  } catch (error) {
+    console.error("Error sending email :)", error);
   }
 };
 
