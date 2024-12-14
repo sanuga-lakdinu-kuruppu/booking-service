@@ -68,7 +68,7 @@ export const createNewBooking = async (booking) => {
       verificationId: generateShortUuid(),
       otp: otp,
       expiryAt: new Date(Date.now() + otpWaiting  * 60 * 1000),
-      booking: booking.bookingId,
+      booking: booking._id,
       status: "NOT_VERIFIED",
       type: "COMMUTER_VERIFICATION",
     };
