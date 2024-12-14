@@ -8,6 +8,7 @@ import {
   CreateScheduleCommand,
 } from "@aws-sdk/client-scheduler";
 import { generateShortUuid, generateOtp } from "../../common/util/unique.mjs";
+import { getEmailBodyForCommuterVerification } from "../../common/util/emailTemplate.mjs";
 const ses = new AWS.SES();
 
 const eventBridge = new AWS.EventBridge({
@@ -67,7 +68,7 @@ export const createNewBooking = async (booking) => {
     const optVerification = {
       verificationId: generateShortUuid(),
       otp: otp,
-      expiryAt: new Date(Date.now() + otpWaiting  * 60 * 1000),
+      expiryAt: new Date(Date.now() + otpWaiting * 60 * 1000),
       booking: savedBooking._id,
       status: "NOT_VERIFIED",
       type: "COMMUTER_VERIFICATION",
@@ -78,7 +79,12 @@ export const createNewBooking = async (booking) => {
     console.log(`opt Verification saved successfully :)`);
 
     //need to send otp for commuter verification
-    await sendOtpEmail(foundCommuter.contact.email, otp);
+    const emailBody = getEmailBodyForCommuterVerification(
+      otp,
+      savedBooking.commuter.name.firstName,
+      otpWaiting
+    );
+    await sendOtpEmail(foundCommuter.contact.email, emailBody);
 
     const populatedBooking = await Booking.findById(savedBooking._id)
       .select(
@@ -96,7 +102,7 @@ export const createNewBooking = async (booking) => {
   }
 };
 
-const sendOtpEmail = async (toEmail, otp) => {
+const sendOtpEmail = async (toEmail, emailBody) => {
   const params = {
     Source: process.env.EMAIL_FROM,
     Destination: {
