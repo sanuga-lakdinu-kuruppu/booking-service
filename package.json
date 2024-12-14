@@ -1,6 +1,6 @@
 {
   "name": "booking-service",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "main": "index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
