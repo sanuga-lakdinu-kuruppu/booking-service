@@ -1,4 +1,4 @@
-# booking-service - v1.2.3
+# booking-service - v1.2.4
 
 YR3COBSCCOMP232P002
 
