@@ -87,22 +87,84 @@ export const createNewBooking = async (booking) => {
 
     const populatedBooking = await Booking.findById(savedBooking._id)
       .select(
-        "bookingId trip.tripId commuter createdAt updatedAt seatNumber bookingStatus bookingStatus -_id"
+        "bookingId trip.tripId commuter createdAt updatedAt seatNumber bookingStatus -_id"
       )
       .populate({
         path: "commuter",
         select: "commuterId name nic contact -_id",
       });
-    const returnBooking = {
-      ...populatedBooking,
-      verificationId: optVerification.verificationId,
-    };
-    return returnBooking;
+    return filterBookingFields(
+      populatedBooking,
+      optVerification.verificationId
+    );
   } catch (error) {
     console.log(`booking creation error ${error}`);
     return null;
   }
 };
+
+export const getAllBookings = async () => {
+  try {
+    const foundBookings = await Booking.find()
+      .select(
+        "bookingId trip commuter createdAt updatedAt seatNumber price ticketStatus bookingStatus -_id"
+      )
+      .populate({
+        path: "commuter",
+        select: "commuterId name nic contact -_id",
+      });
+    console.log(`booking fetched successfully`);
+    return foundBookings;
+  } catch (error) {
+    console.log(`booking getting error ${error}`);
+  }
+};
+
+export const getBookingById = async (id) => {
+  try {
+    const foundBooking = await Booking.findOne({ bookingId: id })
+      .select(
+        "bookingId trip commuter createdAt updatedAt seatNumber price ticketStatus bookingStatus -_id"
+      )
+      .populate({
+        path: "commuter",
+        select: "commuterId name nic contact -_id",
+      });
+    console.log(`booking fetched successfully`);
+    return foundBooking;
+  } catch (error) {
+    console.log(`booking getting error ${error}`);
+  }
+};
+
+export const getBookingByTripId = async (id) => {
+  try {
+    const foundBookings = await Booking.find({ "trip.tripId": id })
+      .select(
+        "bookingId trip commuter createdAt updatedAt seatNumber price ticketStatus bookingStatus -_id"
+      )
+      .populate({
+        path: "commuter",
+        select: "commuterId name nic contact -_id",
+      });
+    console.log(`bookings fetched successfully`);
+    return foundBookings;
+  } catch (error) {
+    console.log(`bookings getting error ${error}`);
+  }
+};
+
+const filterBookingFields = (booking, verificationId) => ({
+  bookingId: booking.bookingId,
+  createdAt: booking.createdAt,
+  updatedAt: booking.updatedAt,
+  expiryAt: booking.expiryAt,
+  commuter: booking.commuter,
+  trip: booking.trip,
+  seatNumber: booking.seatNumber,
+  bookingStatus: booking.bookingStatus,
+  verificationId: verificationId,
+});
 
 const sendOtpEmail = async (toEmail, emailBody) => {
   const params = {

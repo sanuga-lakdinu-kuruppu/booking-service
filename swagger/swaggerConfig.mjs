@@ -9,7 +9,7 @@ const swaggerOptions = {
     openapi: "3.0.0",
     info: {
       title: "BOOKING-SERVICE [BUSRIYA.COM]",
-      version: "1.3.0",
+      version: "1.4.0",
       description: "Apis for booking services in the busriya system",
       contact: {
         name: "Sanuga Kuruppu [YR3COBSCCOMP232P002]",
@@ -31,9 +31,16 @@ const swaggerOptions = {
         name: "Commuter",
         description: "Operations related to Commuters.",
       },
+      {
+        name: "Booking",
+        description: "Operations related to Bookings.",
+      },
     ],
   },
-  apis: ["./src/commuter/controller/commuterController.mjs"],
+  apis: [
+    "./src/commuter/controller/commuterController.mjs",
+    "./src/booking/controller/bookingController.mjs",
+  ],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
