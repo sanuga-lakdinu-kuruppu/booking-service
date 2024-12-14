@@ -104,7 +104,7 @@ export const createNewBooking = async (booking) => {
 
 const sendOtpEmail = async (toEmail, emailBody) => {
   const params = {
-    Source: process.env.EMAIL_FROM,
+    Source: process.env.EMAIL_FROM, 
     Destination: {
       ToAddresses: [toEmail],
     },
@@ -113,8 +113,8 @@ const sendOtpEmail = async (toEmail, emailBody) => {
         Data: "OTP for Commuter Verification",
       },
       Body: {
-        Text: {
-          Data: `Your OTP for commuter verification is: ${otp}. This OTP will expire soon.`,
+        Html: {
+          Data: emailBody,
         },
       },
     },
