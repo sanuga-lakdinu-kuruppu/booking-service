@@ -21,7 +21,7 @@ const API_PREFIX = `/${SERVICE_NAME}/${VERSION}`;
 
 /**
  * @swagger
- * /booking-service/v1.4/commuters:
+ * /booking-service/v1.5/commuters:
  *   post:
  *     summary: Create a new commuter
  *     tags:
@@ -121,7 +121,7 @@ router.post(
 
 /**
  * @swagger
- * /booking-service/v1.4/commuters:
+ * /booking-service/v1.5/commuters:
  *   get:
  *     summary: Get all commuters
  *     tags:
@@ -184,7 +184,7 @@ router.get(`${API_PREFIX}/commuters`, async (request, response) => {
 
 /**
  * @swagger
- * /booking-service/v1.4/commuters/{commuterId}:
+ * /booking-service/v1.5/commuters/{commuterId}:
  *   get:
  *     summary: Get a commuter by ID
  *     tags:

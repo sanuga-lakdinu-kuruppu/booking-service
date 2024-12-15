@@ -31,10 +31,10 @@ const optVerificationSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    booking: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Booking",
+    bookingId: {
+      type: Number,
       required: true,
+      unique: true,
     },
     status: {
       type: String,
