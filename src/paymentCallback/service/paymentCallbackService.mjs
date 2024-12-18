@@ -74,6 +74,13 @@ export const createNewCallback = async (callback) => {
       );
       console.log(`booking payment updated successfully :)`);
     }
+    const returnObj = {
+      ...filterCallback(savedCallback),
+      paymentRequest: {
+        transactionId: paymentRequest.gatewayTransactionId,
+      },
+    };
+    return returnObj;
   } catch (error) {
     console.log(`callback creation error ${error}`);
     return null;
@@ -101,3 +108,11 @@ const triggerPaymentSuccessEvent = async (tripId, seatNumber) => {
     console.log(`payment success event triggering error ${error}`);
   }
 };
+
+const filterCallback = (callback) => ({
+  callbackId: callback.callbackId,
+  createdAt: callback.createdAt,
+  updatedAt: callback.updatedAt,
+  status: callback.status,
+  details: callback.details,
+});
