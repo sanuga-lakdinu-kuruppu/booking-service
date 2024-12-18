@@ -1,6 +1,6 @@
 {
   "name": "booking-service",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "main": "index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -15,6 +15,7 @@
   "dependencies": {
     "@aws-sdk/client-scheduler": "^3.712.0",
     "aws-sdk": "^2.1692.0",
+    "axios": "^1.7.9",
     "dotenv": "^16.4.7",
     "express": "^4.21.1",
     "express-validator": "^7.2.0",
