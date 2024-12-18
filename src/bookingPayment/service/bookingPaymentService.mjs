@@ -3,7 +3,7 @@ import { Booking } from "../../booking/model/bookingModel.mjs";
 import { v4 as uuidv4 } from "uuid";
 import { generateShortUuid } from "../../common/util/unique.mjs";
 import { PaymentRequest } from "../../paymentRequest/model/paymentRequestModel.mjs";
-import axios from 'axios';
+import axios from "axios";
 
 export const createNewBookingPayment = async (payment) => {
   try {
@@ -21,7 +21,7 @@ export const createNewBookingPayment = async (payment) => {
     };
 
     const paymentGWUrl = process.env.PAYMENT_GATEWAY_URL;
-    const gwResponse = callPaymentGWToInitiatePaymentProcess(
+    const gwResponse = await callPaymentGWToInitiatePaymentProcess(
       paymentGWUrl,
       body
     );
