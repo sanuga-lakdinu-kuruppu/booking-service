@@ -71,6 +71,58 @@ export const createNewBookingPayment = async (payment) => {
   }
 };
 
+export const getAllPayments = async () => {
+  try {
+    const foundPayments = await BookingPayment.find()
+      .select(
+        "paymentId amount paymentAt createdAt updatedAt method type status -_id"
+      )
+      .populate({
+        path: "booking",
+        select: "bookingId -_id",
+      });
+    console.log(`payments fetched successfully`);
+    return foundPayments;
+  } catch (error) {
+    console.log(`payments getting error ${error}`);
+  }
+};
+
+export const getBookingPaymentById = async (id) => {
+  try {
+    const foundPayment = await BookingPayment.findOne({ paymentId: id })
+      .select(
+        "paymentId amount paymentAt createdAt updatedAt method type status -_id"
+      )
+      .populate({
+        path: "booking",
+        select: "bookingId -_id",
+      });
+    console.log(`payment fetched successfully`);
+    return foundPayment;
+  } catch (error) {
+    console.log(`payment getting error ${error}`);
+  }
+};
+
+export const getBookingPaymentsByBookingId = async (id) => {
+  try {
+    const foundBooking = await Booking.findOne({ bookingId: id });
+    const foundPayments = await BookingPayment.find({ booking: foundBooking._id })
+      .select(
+        "paymentId amount paymentAt createdAt updatedAt method type status -_id"
+      )
+      .populate({
+        path: "booking",
+        select: "bookingId -_id",
+      });
+    console.log(`payment fetched successfully`);
+    return foundPayments;
+  } catch (error) {
+    console.log(`payment getting error ${error}`);
+  }
+};
+
 const callPaymentGWToInitiatePaymentProcess = async (url, body) => {
   try {
     const response = await axios.post(url, body, {
