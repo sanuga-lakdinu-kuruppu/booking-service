@@ -43,12 +43,12 @@ export const createNewBookingPayment = async (payment) => {
 
     const paymentRequest = {
       requestId: generateShortUuid(),
-      redirectUrl: gwResponse.redirectUrl,
+      redirectUrl: gwResponse.paymentDetails.redirectUrl,
       callbackUrl: callbackUrl,
       bookingId: booking.bookingId,
       bookingPayment: savedPayment._id,
       systemTransactionId: systemTransactionId,
-      gatewayTransactionId: gwResponse.gatewayTransactionId,
+      gatewayTransactionId: gwResponse.paymentDetails.transactionId,
     };
 
     const newPaymentRequest = new PaymentRequest(paymentRequest);
