@@ -32,7 +32,7 @@ export const createNewCallback = async (callback) => {
       const updatedBookingPayment = {
         status: "SUCCESS",
       };
-      await BookingPayment.findOneAndUpdate(
+      const bookingPaymentUpdated = await BookingPayment.findOneAndUpdate(
         { _id: paymentRequest.bookingPayment },
         updatedBookingPayment,
         {
@@ -42,23 +42,25 @@ export const createNewCallback = async (callback) => {
       );
       console.log(`booking payment updated successfully :)`);
 
-      const updatedBooking = {
-        bookingStatus: "PAID",
-      };
+      if (bookingPaymentUpdated.type === "BOOKING") {
+        const updatedBooking = {
+          bookingStatus: "PAID",
+        };
 
-      const savedBooking = await Booking.findOneAndUpdate(
-        { bookingId: paymentRequest.bookingId },
-        updatedBooking,
-        {
-          new: true,
-          runValidators: true,
-        }
-      );
-      console.log(`booking updated successfully :)`);
-      await triggerPaymentSuccessEvent(
-        savedBooking.trip.tripId,
-        savedBooking.seatNumber
-      );
+        const savedBooking = await Booking.findOneAndUpdate(
+          { bookingId: paymentRequest.bookingId },
+          updatedBooking,
+          {
+            new: true,
+            runValidators: true,
+          }
+        );
+        console.log(`booking updated successfully :)`);
+        await triggerPaymentSuccessEvent(
+          savedBooking.trip.tripId,
+          savedBooking.seatNumber
+        );
+      }
     } else {
       console.log(`payment failed callback :)`);
       const updatedBookingPayment = {
