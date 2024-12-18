@@ -22,7 +22,7 @@ const API_PREFIX = `/${SERVICE_NAME}/${VERSION}`;
 
 /**
  * @swagger
- * /booking-service/v1.5/bookings:
+ * /booking-service/v1.6/bookings:
  *   post:
  *     summary: Create a new booking
  *     tags:
@@ -159,7 +159,7 @@ router.post(
 
 /**
  * @swagger
- * /booking-service/v1.5/bookings:
+ * /booking-service/v1.6/bookings:
  *   get:
  *     summary: Retrieve all bookings
  *     tags:
@@ -370,7 +370,7 @@ router.get(`${API_PREFIX}/bookings`, async (request, response) => {
 
 /**
  * @swagger
- * /booking-service/v1.5/bookings/{bookingId}:
+ * /booking-service/v1.6/bookings/{bookingId}:
  *   get:
  *     summary: Get a booking by ID
  *     tags:
@@ -596,7 +596,7 @@ router.get(
 
 /**
  * @swagger
- * /booking-service/v1.5/bookings/tripId/{tripId}:
+ * /booking-service/v1.6/bookings/tripId/{tripId}:
  *   get:
  *     summary: Get bookings by trip ID
  *     tags:
