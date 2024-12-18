@@ -3,6 +3,7 @@ import { Booking } from "../../booking/model/bookingModel.mjs";
 import { v4 as uuidv4 } from "uuid";
 import { generateShortUuid } from "../../common/util/unique.mjs";
 import { PaymentRequest } from "../../paymentRequest/model/paymentRequestModel.mjs";
+import axios from 'axios';
 
 export const createNewBookingPayment = async (payment) => {
   try {
@@ -59,7 +60,7 @@ export const createNewBookingPayment = async (payment) => {
       redirectUrl: savedRequest.redirectUrl,
       amount: savedPayment.amount,
       method: savedPayment.method,
-      type: savedPayment.status,
+      type: savedPayment.type,
       status: savedPayment.status,
     };
 
