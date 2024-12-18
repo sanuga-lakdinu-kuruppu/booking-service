@@ -9,7 +9,7 @@ const swaggerOptions = {
     openapi: "3.0.0",
     info: {
       title: "BOOKING-SERVICE [BUSRIYA.COM]",
-      version: "1.6.2",
+      version: "1.7.0",
       description: "Apis for booking services in the busriya system",
       contact: {
         name: "Sanuga Kuruppu [YR3COBSCCOMP232P002]",
@@ -35,11 +35,26 @@ const swaggerOptions = {
         name: "Booking",
         description: "Operations related to Bookings.",
       },
+      {
+        name: "Booking Payment",
+        description: "Operations related to Booking Payments.",
+      },
+      {
+        name: "OTP Verification",
+        description: "Operations related to OTP Verification.",
+      },
+      {
+        name: "Payment Callbacks",
+        description: "Operations related to Payment Callbacks.",
+      },
     ],
   },
   apis: [
     "./src/commuter/controller/commuterController.mjs",
     "./src/booking/controller/bookingController.mjs",
+    "./src/bookingPayment/controller/bookingPaymentController.mjs",
+    "./src/otpVerification/controller/optVerificationController.mjs",
+    "./src/paymentCallback/controller/paymentCallbackController.mjs",
   ],
 };
 
