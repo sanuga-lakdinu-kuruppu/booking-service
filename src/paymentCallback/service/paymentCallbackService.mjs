@@ -2,7 +2,11 @@ import { BookingPayment } from "../../bookingPayment/model/bookingPaymentModel.m
 import { PaymentCallback } from "../../paymentCallback/model/paymentCallbackModel.mjs";
 import { PaymentRequest } from "../../paymentRequest/model/paymentRequestModel.mjs";
 import { Booking } from "../../booking/model/bookingModel.mjs";
+import { generateQrString, generateTicket } from "../../common/util/unique.mjs";
+import { getEmailBodyForPaymentSuccess } from "../../common/util/emailTemplate.mjs";
+import { Commuter } from "../../commuter/model/commuterModel.mjs";
 import AWS from "aws-sdk";
+const ses = new AWS.SES();
 
 const eventBridge = new AWS.EventBridge({
   region: process.env.FINAL_AWS_REGION,
@@ -39,8 +43,13 @@ export const createNewCallback = async (callback) => {
     );
 
     if (bookingPaymentUpdated.type === "BOOKING") {
+      const eTicket = generateTicket();
+      const qrUrl = await generateQrString(eTicket);
+
       const updatedBooking = {
         bookingStatus: "PAID",
+        eTicket: eTicket,
+        qrValidationToken: qrUrl,
       };
 
       const savedBooking = await Booking.findOneAndUpdate(
@@ -55,6 +64,22 @@ export const createNewCallback = async (callback) => {
         savedBooking.trip.tripId,
         savedBooking.seatNumber
       );
+
+      const commuter = await Commuter.findById(savedBooking.commuter);
+      if (commuter) {
+        const emailSucess = getEmailBodyForPaymentSuccess(
+          commuter.name.firstName,
+          savedBooking.bookingId,
+          savedBooking.trip,
+          savedBooking.seatNumber,
+          savedBooking.price
+        );
+        await sendEmail(
+          commuter.contact.email.trim(),
+          emailSucess,
+          "Payment Successful - Booking Confirmation"
+        );
+      }
     }
   } else {
     const updatedBookingPayment = {
@@ -94,6 +119,27 @@ const triggerPaymentSuccessEvent = async (tripId, seatNumber) => {
     ],
   };
   await eventBridge.putEvents(eventParams).promise();
+};
+
+const sendEmail = async (toEmail, emailBody, subject) => {
+  const params = {
+    Source: process.env.EMAIL_FROM,
+    Destination: {
+      ToAddresses: [toEmail],
+    },
+    Message: {
+      Subject: {
+        Data: subject,
+      },
+      Body: {
+        Html: {
+          Data: emailBody,
+        },
+      },
+    },
+  };
+
+  const emailResponse = await ses.sendEmail(params).promise();
 };
 
 const filterCallback = (callback) => ({
