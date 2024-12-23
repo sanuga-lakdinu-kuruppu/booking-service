@@ -86,13 +86,13 @@ export const getEmailBodyForCommuterVerification = (otp, firstName, delay) => {
 };
 
 export const getEmailBodyForPaymentSuccess = (
-    firstName,
-    bookingId,
-    trip,
-    seatNumber,
-    price
-  ) => {
-    return `
+  firstName,
+  bookingId,
+  trip,
+  seatNumber,
+  price
+) => {
+  return `
       <!DOCTYPE html>
       <html lang="en">
       <head>
@@ -171,6 +171,7 @@ export const getEmailBodyForPaymentSuccess = (
                   <p>Your booking details are as follows:</p>
                   <ul>
                       <li><strong>Trip Number:</strong> ${trip.tripNumber}</li>
+                      <li><strong>Route:</strong> ${trip.routeName}</li>
                       <li><strong>Seat Number:</strong> ${seatNumber}</li>
                       <li><strong>Trip Date:</strong> ${trip.tripDate}</li>
                       <li><strong>Departure Time:</strong> ${trip.schedule.departureTime}</li>
@@ -180,7 +181,9 @@ export const getEmailBodyForPaymentSuccess = (
                   <br>
                   <p><strong>Cancellation Policy:</strong> ${trip.cancellationPolicy.description}</p>
                   <br>
-                  <p>Your booking has been confirmed, and we look forward to welcoming you on board. Should you require any further assistance, please do not hesitate to contact our support team.</p>
+                  <p>Your booking has been confirmed, and we look forward to welcoming you on board.</p>
+                  <p>Please note that your ticket and QR code will be sent to you in a separate email shortly.</p>
+                  <p>If you require any further assistance, please do not hesitate to contact our support team.</p>
               </div>
               <div class="footer">
                   <p>&copy; 2024 [Your Company Name]. All rights reserved.</p>
@@ -189,4 +192,95 @@ export const getEmailBodyForPaymentSuccess = (
           </div>
       </body>
       </html>`;
-  };
+};
+
+export const getEmailBodyForETicketAndQR = (
+  firstName,
+  bookingId,
+  qrBase64,
+  eTicket
+) => {
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Your E-Ticket and QR Code</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f9f9f9;
+                color: #333;
+                margin: 0;
+                padding: 0;
+            }
+            .email-container {
+                max-width: 600px;
+                margin: 20px auto;
+                background-color: #ffffff;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+            .header {
+                background-color: #0073e6;
+                color: #ffffff;
+                text-align: center;
+                padding: 20px;
+            }
+            .header h1 {
+                margin: 0;
+                font-size: 24px;
+            }
+            .content {
+                padding: 20px;
+            }
+            .content p {
+                margin: 10px 0;
+                line-height: 1.6;
+            }
+            .ticket-info {
+                background-color: #f0f0f0;
+                padding: 15px;
+                border-radius: 5px;
+                margin-top: 20px;
+            }
+            .footer {
+                text-align: center;
+                padding: 15px;
+                font-size: 12px;
+                color: #777;
+                border-top: 1px solid #e0e0e0;
+            }
+            .footer a {
+                color: #0073e6;
+                text-decoration: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="email-container">
+            <div class="header">
+                <h1>Your E-Ticket and QR Code</h1>
+            </div>
+            <div class="content">
+                <p>Dear ${firstName},</p>
+                <p>We are excited to share your e-ticket and QR code for your upcoming trip. Below are your booking details:</p>
+                <div class="ticket-info">
+                    <p><strong>Booking ID:</strong> ${bookingId}</p>
+                    <p><strong>E Ticket:</strong> ${eTicket}</p>
+                </div>
+                <p><strong>Your QR Code:</strong></p>
+                <img src="data:image/png;base64,${qrBase64}" alt="QR Code" style="max-width: 200px; margin-top: 20px;" />
+                <p>Use this QR code for easy check-in at the boarding gate.</p>
+                <p>If you have any questions or need assistance, don’t hesitate to reach out to our support team.</p>
+            </div>
+            <div class="footer">
+                <p>&copy; 2024 [Your Company Name]. All rights reserved.</p>
+                <p><a href="https://yourwebsite.com">Visit our website</a> | <a href="mailto:support@yourcompany.com">Contact Support</a></p>
+            </div>
+        </div>
+    </body>
+    </html>`;
+};
