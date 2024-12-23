@@ -13,6 +13,7 @@ import {
   getBookingById,
   getBookingByTripId,
 } from "../service/bookingService.mjs";
+import { log } from "../../common/util/log.mjs";
 
 const router = Router();
 
@@ -24,35 +25,53 @@ router.post(
   `${API_PREFIX}/bookings`,
   checkSchema(bookingSchema),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     const result = validationResult(request);
-    if (!result.isEmpty())
+    if (!result.isEmpty()) {
+      log(baseLog, "FAILED", result.errors[0]);
       return response.status(400).send({ error: result.errors[0].msg });
+    }
+
     const data = matchedData(request);
     try {
       data.bookingId = generateShortUuid();
       const createdBooking = await createNewBooking(data);
-      if (!createdBooking)
+
+      if (!createdBooking) {
+        log(baseLog, "FAILED", "internal server error");
         return response.status(500).send({ error: "internal server error" });
-      if (createdBooking === "SEAT_IS_ALREADY_USED")
+      }
+      if (createdBooking === "SEAT_IS_ALREADY_USED") {
+        log(baseLog, "FAILED", "seat already used");
         return response.status(400).send({ error: "seat already used" });
-      if (createdBooking === "SEAT_NOT_IN_THE_VALID_RANGE")
+      }
+      if (createdBooking === "SEAT_NOT_IN_THE_VALID_RANGE") {
+        log(baseLog, "FAILED", "seat is outside of the expected capacity");
         return response
           .status(400)
           .send({ error: "seat is outside of the expected capacity" });
+      }
+
+      log(baseLog, "SUCCESS", {});
       return response.status(201).send(createdBooking);
     } catch (error) {
-      console.log(`booking creation error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
 );
 
 router.get(`${API_PREFIX}/bookings`, async (request, response) => {
+  const baseLog = request.baseLog;
+
   try {
     const foundBookings = await getAllBookings();
+
+    log(baseLog, "SUCCESS", {});
     return response.send(foundBookings);
   } catch (error) {
-    console.log(`booking getting error ${error}`);
+    log(baseLog, "FAILED", error.message);
     return response.status(500).send({ error: "internal server error" });
   }
 });
@@ -63,18 +82,29 @@ router.get(
     .isNumeric()
     .withMessage("bad request, bookingId should be a number"),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { bookingId },
       } = request;
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const foundBooking = await getBookingById(bookingId);
-      if (foundBooking) return response.send(foundBooking);
-      else return response.status(404).send({ error: "resource not found" });
+
+      if (foundBooking) {
+        log(baseLog, "SUCCESS", {});
+        return response.send(foundBooking);
+      } else {
+        log(baseLog, "FAILED", "resource not found");
+        return response.status(404).send({ error: "resource not found" });
+      }
     } catch (error) {
-      console.log(`booking getting error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
@@ -86,24 +116,37 @@ router.get(
     .isNumeric()
     .withMessage("bad request, tripId should be a number"),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { tripId },
       } = request;
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const foundBookings = await getBookingByTripId(tripId);
-      if (foundBookings) return response.send(foundBookings);
-      else return response.status(404).send({ error: "resource not found" });
+
+      if (foundBookings) {
+        log(baseLog, "SUCCESS", {});
+        return response.send(foundBookings);
+      } else {
+        log(baseLog, "FAILED", "resource not found");
+        return response.status(404).send({ error: "resource not found" });
+      }
     } catch (error) {
-      console.log(`bookings getting error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
 );
 
 router.all(`${API_PREFIX}/bookings*`, (request, response) => {
+  const baseLog = request.baseLog;
+  log(baseLog, "FAILED", "method not allowed");
   return response.status(405).send({ error: "method not allowed" });
 });
 
