@@ -10,7 +10,7 @@ import {
 import { Commuter } from "../../commuter/model/commuterModel.mjs";
 import AWS from "aws-sdk";
 const ses = new AWS.SES();
-import { Buffer } from "buffer";
+const s3 = new AWS.S3();
 
 const eventBridge = new AWS.EventBridge({
   region: process.env.FINAL_AWS_REGION,
@@ -84,17 +84,20 @@ export const createNewCallback = async (callback) => {
         //   "Payment Successful - Booking Confirmation"
         // );
 
+        const bucketName = "busriya-qr-bucket";
+        const qrBase64 = qrUrl.replace(/^data:image\/png;base64,/, ""); // Extract the base64 part
+        const qrImageUrl = await uploadToS3(qrBase64, bucketName);
+
         const emailTicket = getEmailBodyForETicketAndQR(
           commuter.name.firstName,
           savedBooking.bookingId,
-          qrUrl,
+          qrImageUrl,
           eTicket
         );
         await sendEmail(
           commuter.contact.email.trim(),
           emailTicket,
-          "E-Ticket and QR Code",
-          qrUrl
+          "E-Ticket and QR Code"
         );
       }
     }
@@ -138,8 +141,7 @@ const triggerPaymentSuccessEvent = async (tripId, seatNumber) => {
   await eventBridge.putEvents(eventParams).promise();
 };
 
-const sendEmail = async (toEmail, emailBody, subject, qrBase64) => {
-  const qrBuffer = Buffer.from(qrBase64.split(",")[1], "base64");
+const sendEmail = async (toEmail, emailBody, subject) => {
   const params = {
     Source: process.env.EMAIL_FROM,
     Destination: {
@@ -151,24 +153,29 @@ const sendEmail = async (toEmail, emailBody, subject, qrBase64) => {
       },
       Body: {
         Html: {
-          Data: emailBody.replace(
-            "{QR_CODE}",
-            '<img src="cid:qrCodeImage" alt="QR Code" />'
-          ),
+          Data: emailBody,
         },
       },
     },
-    Attachments: [
-      {
-        Content: qrBuffer, // Binary content of the QR code
-        ContentType: "image/png",
-        Name: "qrcode.png", // Name of the attachment
-        ContentId: "qrCodeImage", // Content-ID for referencing in the email body
-      },
-    ],
   };
 
   const emailResponse = await ses.sendEmail(params).promise();
+};
+
+const uploadToS3 = async (base64Image, bucketName) => {
+  const buffer = Buffer.from(base64Image, "base64");
+  const key = `qr-codes/${uuidv4()}.png`;
+
+  const params = {
+    Bucket: bucketName,
+    Key: key,
+    Body: buffer,
+    ContentType: "image/png",
+    ACL: "public-read", // Make the file publicly accessible
+  };
+
+  const uploadResult = await s3.upload(params).promise();
+  return uploadResult.Location; // URL of the uploaded image
 };
 
 const filterCallback = (callback) => ({
