@@ -12,6 +12,7 @@ import {
   getAllCommuters,
   getCommuterById,
 } from "../service/commuterService.mjs";
+import { log } from "../../common/util/log.mjs";
 
 const router = Router();
 
@@ -23,27 +24,39 @@ router.post(
   `${API_PREFIX}/commuters`,
   checkSchema(commuterSchema),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     const result = validationResult(request);
-    if (!result.isEmpty())
+    if (!result.isEmpty()) {
+      log(baseLog, "FAILED", result.errors[0]);
       return response.status(400).send({ error: result.errors[0].msg });
+    }
+
     const data = matchedData(request);
+
     try {
       data.commuterId = generateShortUuid();
       const createdCommuter = await createNewCommuter(data);
+
+      log(baseLog, "SUCCESS", {});
       return response.status(201).send(createdCommuter);
     } catch (error) {
-      console.log(`commuter creation error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
 );
 
 router.get(`${API_PREFIX}/commuters`, async (request, response) => {
+  const baseLog = request.baseLog;
+
   try {
     const foundCommuters = await getAllCommuters();
+
+    log(baseLog, "SUCCESS", {});
     return response.send(foundCommuters);
   } catch (error) {
-    console.log(`commuter getting error ${error}`);
+    log(baseLog, "FAILED", error.message);
     return response.status(500).send({ error: "internal server error" });
   }
 });
@@ -54,24 +67,37 @@ router.get(
     .isNumeric()
     .withMessage("bad request, commuterId should be a number"),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { commuterId },
       } = request;
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const foundCommuter = await getCommuterById(commuterId);
-      if (foundCommuter) return response.send(foundCommuter);
-      else return response.status(404).send({ error: "resource not found" });
+
+      if (foundCommuter) {
+        log(baseLog, "SUCCESS", {});
+        return response.send(foundCommuter);
+      } else {
+        log(baseLog, "FAILED", "resouce not found");
+        return response.status(404).send({ error: "resource not found" });
+      }
     } catch (error) {
-      console.log(`commuter getting error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
 );
 
 router.all(`${API_PREFIX}/commuters*`, (request, response) => {
+  const baseLog = request.baseLog;
+  log(baseLog, "FAILED", "method not allowed");
   return response.status(405).send({ error: "method not allowed" });
 });
 
