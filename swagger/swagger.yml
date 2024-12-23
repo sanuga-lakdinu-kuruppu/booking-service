@@ -815,6 +815,131 @@ paths:
           description: No bookings found for the given trip ID.
         500:
           description: Internal server error.
+  /booking-service/v1.7/bookings/eTicket/{eTicket}:
+    get:
+      summary: Retrieve booking details using eTicket
+      tags:
+      - Booking
+      description: Fetch booking details for a specific eTicket. If the booking is found and OTP verification is pending, it will trigger OTP generation and email the commuter for verification. Otherwise, it will send the booking details.
+      security: []
+      parameters:
+      - in: path
+        name: eTicket
+        required: true
+        schema:
+          type: string
+        description: The eTicket number to search for booking details.
+        example: "ET12345678"
+      responses:
+        200:
+          description: Booking details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bookingId:
+                    type: string
+                    example: "BK123456"
+                    description: The unique booking ID.
+                  trip:
+                    type: string
+                    example: "TripName"
+                    description: Details of the trip.
+                  commuter:
+                    type: object
+                    properties:
+                      commuterId:
+                        type: string
+                        example: "COM12345"
+                        description: Unique commuter ID.
+                      name:
+                        type: string
+                        example: "John Doe"
+                        description: The name of the commuter.
+                      nic:
+                        type: string
+                        example: "982345678V"
+                        description: The commuter's NIC.
+                      contact:
+                        type: string
+                        example: "johndoe@example.com"
+                        description: The commuter's email contact.
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-01T10:00:00Z"
+                    description: Booking creation time.
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-10T12:00:00Z"
+                    description: Last updated time for the booking.
+                  qrValidationToken:
+                    type: string
+                    example: "QRTOKEN12345"
+                    description: Token for QR validation.
+                  eTicket:
+                    type: string
+                    example: "ET12345678"
+                    description: The eTicket number.
+                  seatNumber:
+                    type: string
+                    example: "12A"
+                    description: Seat number for the booking.
+                  price:
+                    type: number
+                    example: 1500.75
+                    description: The price of the booking.
+                  ticketStatus:
+                    type: string
+                    example: "CONFIRMED"
+                    description: Status of the ticket.
+                  bookingStatus:
+                    type: string
+                    example: "PAID"
+                    description: Status of the booking.
+        201:
+          description: OTP verification triggered successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  verificationId:
+                    type: string
+                    example: "shortUUID123"
+                    description: Unique ID for the OTP verification request.
+        400:
+          description: Invalid eTicket or validation error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, eTicket should be a String"
+        404:
+          description: No booking found for the provided eTicket.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "no booking found for this ticket"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
   # =================== BOOKING PAYMENTS===================
   # ================================================
   # ================================================
