@@ -13,6 +13,7 @@ import {
   getBookingPaymentById,
   getBookingPaymentsByBookingId,
 } from "../service/bookingPaymentService.mjs";
+import { log } from "../../common/util/log.mjs";
 
 const router = Router();
 
@@ -24,29 +25,43 @@ router.post(
   `${API_PREFIX}/booking-payments`,
   checkSchema(bookingPaymentSchema),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     const result = validationResult(request);
-    if (!result.isEmpty())
+    if (!result.isEmpty()) {
+      log(baseLog, "FAILED", result.errors[0]);
       return response.status(400).send({ error: result.errors[0].msg });
+    }
+
     const data = matchedData(request);
+
     try {
       data.paymentId = generateShortUuid();
       const createdPayment = await createNewBookingPayment(data);
-      if (!createdPayment)
+
+      if (!createdPayment) {
+        log(baseLog, "FAILED", "internal server error");
         return response.status(500).send({ error: "internal server error" });
+      }
+      log(baseLog, "SUCCESS", {});
       return response.status(201).send(createdPayment);
     } catch (error) {
-      console.log(`booking payment error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
 );
 
 router.get(`${API_PREFIX}/booking-payments`, async (request, response) => {
+  const baseLog = request.baseLog;
+
   try {
     const foundPayments = await getAllPayments();
+
+    log(baseLog, "SUCCESS", {});
     return response.send(foundPayments);
   } catch (error) {
-    console.log(`booking payment error ${error}`);
+    log(baseLog, "FAILED", error.message);
     return response.status(500).send({ error: "internal server error" });
   }
 });
@@ -57,18 +72,29 @@ router.get(
     .isNumeric()
     .withMessage("bad request, paymentId should be a number"),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { paymentId },
       } = request;
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const foundPayment = await getBookingPaymentById(paymentId);
-      if (foundPayment) return response.send(foundPayment);
-      else return response.status(404).send({ error: "resource not found" });
+
+      if (foundPayment) {
+        log(baseLog, "SUCCESS", {});
+        return response.send(foundPayment);
+      } else {
+        log(baseLog, "FAILED", "resouce not found");
+        return response.status(404).send({ error: "resource not found" });
+      }
     } catch (error) {
-      console.log(`booking payment error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
@@ -80,24 +106,37 @@ router.get(
     .isNumeric()
     .withMessage("bad request, bookingId should be a number"),
   async (request, response) => {
+    const baseLog = request.baseLog;
+
     try {
       const result = validationResult(request);
       const {
         params: { bookingId },
       } = request;
-      if (!result.isEmpty())
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
         return response.status(400).send({ error: result.errors[0].msg });
+      }
+
       const foundPayments = await getBookingPaymentsByBookingId(bookingId);
-      if (foundPayments) return response.send(foundPayments);
-      else return response.status(404).send({ error: "resource not found" });
+
+      if (foundPayments) {
+        log(baseLog, "SUCCESS", {});
+        return response.send(foundPayments);
+      } else {
+        log(baseLog, "FAILED", "resouce not found");
+        return response.status(404).send({ error: "resource not found" });
+      }
     } catch (error) {
-      console.log(`booking payments error ${error}`);
+      log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
     }
   }
 );
 
 router.all(`${API_PREFIX}/booking-payments*`, (request, response) => {
+  const baseLog = request.baseLog;
+  log(baseLog, "FAILED", "method not allowed");
   return response.status(405).send({ error: "method not allowed" });
 });
 
