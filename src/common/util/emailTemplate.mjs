@@ -272,6 +272,7 @@ export const getEmailBodyForETicketAndQR = (
                     <p><strong>E Ticket:</strong> ${eTicket}</p>
                 </div>
                 <p><strong>Your QR Code:</strong></p>
+                {QR_CODE}
                 <img src="${qrBase64}" alt="QR Code" style="max-width: 200px; margin-top: 20px;" />
                 <p>Use this QR code for easy check-in at the boarding gate.</p>
                 <p>If you have any questions or need assistance, don’t hesitate to reach out to our support team.</p>
