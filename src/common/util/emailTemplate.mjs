@@ -197,7 +197,7 @@ export const getEmailBodyForPaymentSuccess = (
 export const getEmailBodyForETicketAndQR = (
   firstName,
   bookingId,
-  url,
+  qr,
   eTicket
 ) => {
   return `
@@ -272,9 +272,7 @@ export const getEmailBodyForETicketAndQR = (
                     <p><strong>E Ticket:</strong> ${eTicket}</p>
                 </div>
                 <p><strong>Your QR Code:</strong></p>
-                {QR_CODE}
-                ${url}
-                <p><img src="${url}" alt="QR Code" /></p>
+                <p><img src="${qr}" alt="QR Code" /></p>
                 <p>Use this QR code for easy check-in at the boarding gate.</p>
                 <p>If you have any questions or need assistance, don’t hesitate to reach out to our support team.</p>
             </div>
