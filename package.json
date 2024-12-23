@@ -16,6 +16,7 @@
     "@aws-sdk/client-scheduler": "^3.712.0",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.7.9",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.1",
     "express-validator": "^7.2.0",
@@ -26,6 +27,7 @@
     "swagger-doc": "^0.3.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "uuid": "^11.0.3"
+    "uuid": "^11.0.3",
+    "yamljs": "^0.3.0"
   }
 }
