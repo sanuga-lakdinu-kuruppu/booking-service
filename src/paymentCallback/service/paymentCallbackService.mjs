@@ -10,7 +10,6 @@ import {
 import { Commuter } from "../../commuter/model/commuterModel.mjs";
 import AWS from "aws-sdk";
 const ses = new AWS.SES();
-const s3 = new AWS.S3();
 
 const eventBridge = new AWS.EventBridge({
   region: process.env.FINAL_AWS_REGION,
@@ -78,20 +77,16 @@ export const createNewCallback = async (callback) => {
           savedBooking.seatNumber,
           savedBooking.price
         );
-        // await sendEmail(
-        //   commuter.contact.email.trim(),
-        //   emailSucess,
-        //   "Payment Successful - Booking Confirmation"
-        // );
-
-        const bucketName = "busriya-qr-bucket";
-        const qrBase64 = qrUrl.replace(/^data:image\/png;base64,/, ""); // Extract the base64 part
-        const qrImageUrl = await uploadToS3(qrBase64, bucketName);
+        await sendEmail(
+          commuter.contact.email.trim(),
+          emailSucess,
+          "Payment Successful - Booking Confirmation"
+        );
 
         const emailTicket = getEmailBodyForETicketAndQR(
           commuter.name.firstName,
           savedBooking.bookingId,
-          qrImageUrl,
+          qrUrl,
           eTicket
         );
         await sendEmail(
@@ -160,22 +155,6 @@ const sendEmail = async (toEmail, emailBody, subject) => {
   };
 
   const emailResponse = await ses.sendEmail(params).promise();
-};
-
-const uploadToS3 = async (base64Image, bucketName) => {
-  const buffer = Buffer.from(base64Image, "base64");
-  const key = `qr-codes/${uuidv4()}.png`;
-
-  const params = {
-    Bucket: bucketName,
-    Key: key,
-    Body: buffer,
-    ContentType: "image/png",
-    ACL: "public-read", // Make the file publicly accessible
-  };
-
-  const uploadResult = await s3.upload(params).promise();
-  return uploadResult.Location; // URL of the uploaded image
 };
 
 const filterCallback = (callback) => ({
