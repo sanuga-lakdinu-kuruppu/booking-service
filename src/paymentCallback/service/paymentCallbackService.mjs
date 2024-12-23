@@ -3,7 +3,10 @@ import { PaymentCallback } from "../../paymentCallback/model/paymentCallbackMode
 import { PaymentRequest } from "../../paymentRequest/model/paymentRequestModel.mjs";
 import { Booking } from "../../booking/model/bookingModel.mjs";
 import { generateQrString, generateTicket } from "../../common/util/unique.mjs";
-import { getEmailBodyForPaymentSuccess } from "../../common/util/emailTemplate.mjs";
+import {
+  getEmailBodyForPaymentSuccess,
+  getEmailBodyForETicketAndQR,
+} from "../../common/util/emailTemplate.mjs";
 import { Commuter } from "../../commuter/model/commuterModel.mjs";
 import AWS from "aws-sdk";
 const ses = new AWS.SES();
@@ -78,6 +81,18 @@ export const createNewCallback = async (callback) => {
           commuter.contact.email.trim(),
           emailSucess,
           "Payment Successful - Booking Confirmation"
+        );
+
+        const emailTicket = getEmailBodyForETicketAndQR(
+          commuter.name.firstName,
+          savedBooking.bookingId,
+          qrUrl,
+          eTicket
+        );
+        await sendEmail(
+          commuter.contact.email.trim(),
+          emailTicket,
+          "E-Ticket and QR Code"
         );
       }
     }
