@@ -39,7 +39,7 @@ export const createNewBooking = async (booking) => {
   });
   if (foundBookingForThisSeat) return "SEAT_IS_ALREADY_USED";
 
-  const bookingWaiting = process.env.BOOKING_WAITING || 10;
+  const bookingWaiting = process.env.OTP_WAITING_BOOKING || 10;
 
   booking.trip = {
     tripId: booking.trip,
@@ -127,6 +127,53 @@ export const getBookingByTripId = async (id) => {
       select: "commuterId name nic contact -_id",
     });
   return foundBookings;
+};
+
+export const getBookingByEticket = async (eTicket) => {
+  const foundBooking = await Booking.find({ eTicket: eTicket })
+    .select(
+      "bookingId trip commuter createdAt updatedAt seatNumber price ticketStatus bookingStatus -_id"
+    )
+    .populate({
+      path: "commuter",
+      select: "commuterId name nic contact -_id",
+    });
+
+  if (!foundBooking) return "NO_BOOKING_FOUND";
+
+  const otpVerification = await OtpVerification.findOne({
+    bookingId: foundBooking.bookingId,
+    type: "E_TICKET_VERIFICATION_GET",
+  });
+
+  if (otpVerification) {
+    return foundBooking;
+  } else {
+    const otpWaiting = process.env.OTP_WAITING_ETICKET || 4;
+
+    const otp = generateOtp();
+    const optVerification = {
+      verificationId: generateShortUuid(),
+      otp: otp,
+      expiryAt: new Date(Date.now() + otpWaiting * 60 * 1000),
+      bookingId: foundBooking.bookingId,
+      status: "NOT_VERIFIED",
+      type: "E_TICKET_VERIFICATION_GET",
+    };
+
+    const newOtpVerification = new OtpVerification(optVerification);
+    const savedOtpVerification = await newOtpVerification.save();
+
+    const emailBody = getEmailBodyForCommuterVerification(
+      otp,
+      foundBooking.commuter.name.firstName,
+      otpWaiting
+    );
+    await sendOtpEmail(foundBooking.contact.email, emailBody);
+    return {
+      verificationId: savedOtpVerification.verificationId,
+    };
+  }
 };
 
 const filterBookingFields = (booking, verificationId) => ({

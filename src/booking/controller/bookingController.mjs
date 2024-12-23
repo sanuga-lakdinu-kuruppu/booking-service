@@ -12,6 +12,7 @@ import {
   getAllBookings,
   getBookingById,
   getBookingByTripId,
+  getBookingByEticket,
 } from "../service/bookingService.mjs";
 import { log } from "../../common/util/log.mjs";
 
@@ -136,6 +137,42 @@ router.get(
       } else {
         log(baseLog, "FAILED", "resource not found");
         return response.status(404).send({ error: "resource not found" });
+      }
+    } catch (error) {
+      log(baseLog, "FAILED", error.message);
+      return response.status(500).send({ error: "internal server error" });
+    }
+  }
+);
+
+router.get(
+  `${API_PREFIX}/bookings/eTicket/:eTicket`,
+  param("eTicket")
+    .isString()
+    .withMessage("bad request, eTicket should be a String"),
+  async (request, response) => {
+    const baseLog = request.baseLog;
+
+    try {
+      const result = validationResult(request);
+      const {
+        params: { eTicket },
+      } = request;
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
+        return response.status(400).send({ error: result.errors[0].msg });
+      }
+
+      const foundBooking = await getBookingByEticket(eTicket);
+
+      if (foundBooking === "NO_BOOKING_FOUND") {
+        log(baseLog, "FAILED", "no booking found for this ticket");
+        return response
+          .status(404)
+          .send({ error: "no booking found for this ticket" });
+      } else {
+        log(baseLog, "SUCCESS", {});
+        return response.send(foundBooking);
       }
     } catch (error) {
       log(baseLog, "FAILED", error.message);
