@@ -171,7 +171,7 @@ export const getEmailBodyForPaymentSuccess = (
                   <p>Your booking details are as follows:</p>
                   <ul>
                       <li><strong>Trip Number:</strong> ${trip.tripNumber}</li>
-                      <li><strong>Route:</strong> ${trip.routeName}</li>
+                      <li><strong>Route:</strong> ${trip.route.routeName}</li>
                       <li><strong>Seat Number:</strong> ${seatNumber}</li>
                       <li><strong>Trip Date:</strong> ${trip.tripDate}</li>
                       <li><strong>Departure Time:</strong> ${trip.schedule.departureTime}</li>
@@ -272,7 +272,7 @@ export const getEmailBodyForETicketAndQR = (
                     <p><strong>E Ticket:</strong> ${eTicket}</p>
                 </div>
                 <p><strong>Your QR Code:</strong></p>
-                <img src="data:image/png;base64,${qrBase64}" alt="QR Code" style="max-width: 200px; margin-top: 20px;" />
+                <img src="${qrBase64}" alt="QR Code" style="max-width: 200px; margin-top: 20px;" />
                 <p>Use this QR code for easy check-in at the boarding gate.</p>
                 <p>If you have any questions or need assistance, don’t hesitate to reach out to our support team.</p>
             </div>
