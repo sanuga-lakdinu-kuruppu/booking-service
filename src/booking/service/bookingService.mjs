@@ -3,6 +3,7 @@ import { Booking } from "../model/bookingModel.mjs";
 import { OtpVerification } from "../../otpVerification/model/otpVerificationModel.mjs";
 import { TripDuplication } from "../../tripDuplication/model/tripDuplicationModel.mjs";
 import AWS from "aws-sdk";
+import { getEmailBodyForETicketAndQR } from "../../common/util/emailTemplate.mjs";
 import {
   SchedulerClient,
   CreateScheduleCommand,
@@ -130,7 +131,10 @@ export const getBookingByTripId = async (id) => {
 };
 
 export const getBookingByEticket = async (eTicket) => {
-  const foundBooking = await Booking.find({ eTicket: eTicket })
+  const foundBooking = await Booking.findOne({
+    eTicket: eTicket,
+    bookingStatus: "PAID",
+  })
     .select(
       "bookingId trip commuter createdAt updatedAt seatNumber price ticketStatus bookingStatus -_id"
     )
@@ -144,9 +148,21 @@ export const getBookingByEticket = async (eTicket) => {
   const otpVerification = await OtpVerification.findOne({
     bookingId: foundBooking.bookingId,
     type: "E_TICKET_VERIFICATION_GET",
+    status: "VERIFIED",
   });
 
   if (otpVerification) {
+    const emailTicket = getEmailBodyForETicketAndQR(
+      foundBooking.commuter.name.firstName,
+      foundBooking.bookingId,
+      foundBooking.qrValidationToken,
+      foundBooking.eTicket
+    );
+    await sendEmail(
+      foundBooking.commuter.contact.email.trim(),
+      emailTicket,
+      "E-Ticket and QR Code"
+    );
     return foundBooking;
   } else {
     const otpWaiting = process.env.OTP_WAITING_ETICKET || 4;
@@ -169,7 +185,7 @@ export const getBookingByEticket = async (eTicket) => {
       foundBooking.commuter.name.firstName,
       otpWaiting
     );
-    await sendOtpEmail(foundBooking.contact.email, emailBody);
+    await sendOtpEmail(foundBooking.commuter.contact.email, emailBody);
     return {
       verificationId: savedOtpVerification.verificationId,
     };
@@ -187,6 +203,27 @@ const filterBookingFields = (booking, verificationId) => ({
   bookingStatus: booking.bookingStatus,
   verificationId: verificationId,
 });
+
+const sendEmail = async (toEmail, emailBody, subject) => {
+  const params = {
+    Source: process.env.EMAIL_FROM,
+    Destination: {
+      ToAddresses: [toEmail],
+    },
+    Message: {
+      Subject: {
+        Data: subject,
+      },
+      Body: {
+        Html: {
+          Data: emailBody,
+        },
+      },
+    },
+  };
+
+  const emailResponse = await ses.sendEmail(params).promise();
+};
 
 const sendOtpEmail = async (toEmail, emailBody) => {
   const params = {
