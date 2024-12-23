@@ -10,6 +10,7 @@ import {
 import { Commuter } from "../../commuter/model/commuterModel.mjs";
 import AWS from "aws-sdk";
 const ses = new AWS.SES();
+import { Buffer } from "buffer";
 
 const eventBridge = new AWS.EventBridge({
   region: process.env.FINAL_AWS_REGION,
@@ -77,11 +78,11 @@ export const createNewCallback = async (callback) => {
           savedBooking.seatNumber,
           savedBooking.price
         );
-        await sendEmail(
-          commuter.contact.email.trim(),
-          emailSucess,
-          "Payment Successful - Booking Confirmation"
-        );
+        // await sendEmail(
+        //   commuter.contact.email.trim(),
+        //   emailSucess,
+        //   "Payment Successful - Booking Confirmation"
+        // );
 
         const emailTicket = getEmailBodyForETicketAndQR(
           commuter.name.firstName,
@@ -92,7 +93,8 @@ export const createNewCallback = async (callback) => {
         await sendEmail(
           commuter.contact.email.trim(),
           emailTicket,
-          "E-Ticket and QR Code"
+          "E-Ticket and QR Code",
+          qrUrl
         );
       }
     }
@@ -136,7 +138,8 @@ const triggerPaymentSuccessEvent = async (tripId, seatNumber) => {
   await eventBridge.putEvents(eventParams).promise();
 };
 
-const sendEmail = async (toEmail, emailBody, subject) => {
+const sendEmail = async (toEmail, emailBody, subject, qrBase64) => {
+  const qrBuffer = Buffer.from(qrBase64.split(",")[1], "base64");
   const params = {
     Source: process.env.EMAIL_FROM,
     Destination: {
@@ -148,10 +151,21 @@ const sendEmail = async (toEmail, emailBody, subject) => {
       },
       Body: {
         Html: {
-          Data: emailBody,
+          Data: emailBody.replace(
+            "{QR_CODE}",
+            '<img src="cid:qrCodeImage" alt="QR Code" />'
+          ),
         },
       },
     },
+    Attachments: [
+      {
+        Content: qrBuffer, // Binary content of the QR code
+        ContentType: "image/png",
+        Name: "qrcode.png", // Name of the attachment
+        ContentId: "qrCodeImage", // Content-ID for referencing in the email body
+      },
+    ],
   };
 
   const emailResponse = await ses.sendEmail(params).promise();
