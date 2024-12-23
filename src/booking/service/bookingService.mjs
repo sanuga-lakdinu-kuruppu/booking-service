@@ -136,7 +136,7 @@ export const getBookingByEticket = async (eTicket) => {
     bookingStatus: "PAID",
   })
     .select(
-      "bookingId trip commuter createdAt updatedAt seatNumber price ticketStatus bookingStatus -_id"
+      "bookingId trip commuter createdAt updatedAt qrValidationToken eTicket seatNumber price ticketStatus bookingStatus -_id"
     )
     .populate({
       path: "commuter",
@@ -163,7 +163,7 @@ export const getBookingByEticket = async (eTicket) => {
       emailTicket,
       "E-Ticket and QR Code"
     );
-    return foundBooking;
+    return filterBookingFieldsWithOutVerificationCode(foundBooking);
   } else {
     const otpWaiting = process.env.OTP_WAITING_ETICKET || 4;
 
@@ -191,6 +191,17 @@ export const getBookingByEticket = async (eTicket) => {
     };
   }
 };
+
+const filterBookingFieldsWithOutVerificationCode = (booking) => ({
+  bookingId: booking.bookingId,
+  createdAt: booking.createdAt,
+  updatedAt: booking.updatedAt,
+  expiryAt: booking.expiryAt,
+  commuter: booking.commuter,
+  trip: booking.trip,
+  seatNumber: booking.seatNumber,
+  bookingStatus: booking.bookingStatus,
+});
 
 const filterBookingFields = (booking, verificationId) => ({
   bookingId: booking.bookingId,
