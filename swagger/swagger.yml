@@ -1,0 +1,1327 @@
+openapi: "3.0.0"
+info:
+  title: "BOOKING-SERVICE [BUSRIYA.COM]"
+  version: "1.7.0"
+  description: "Apis for booking services in the busriya system"
+  contact:
+    name: "Sanuga Kuruppu [YR3COBSCCOMP232P002]"
+    email: "sanugakuruppu.info@gmail.com"
+servers:
+- url: "https://api.busriya.com"
+  description: "PRODUCTION"
+- url: "http://localhost:5002"
+  description: "LOCAL"
+security:
+- bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  # =================== COMMUTER ===================
+  # ================================================
+  # ================================================
+  /booking-service/v1.7/commuters:
+    post:
+      summary: Create a new commuter
+      tags:
+      - Commuter
+      description: Create a new commuter with the provided data.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: object
+                  properties:
+                    firstName:
+                      type: string
+                      example: "Sanuga"
+                    lastName:
+                      type: string
+                      example: "Kuruppu"
+                nic:
+                  type: string
+                  example: "200127201635"
+                contact:
+                  type: object
+                  properties:
+                    mobile:
+                      type: string
+                      example: "+94778060563"
+                    email:
+                      type: string
+                      example: "sanugakuruppu.info@gmail.com"
+      responses:
+        201:
+          description: Commuter creation success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  commuterId:
+                    type: number
+                    example: 30681684
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-05T21:41:35.858Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-05T21:41:35.858Z"
+                  name:
+                    type: object
+                    properties:
+                      firstName:
+                        type: string
+                        example: "Sanuga"
+                      lastName:
+                        type: string
+                        example: "Kuruppu"
+                  nic:
+                    type: string
+                    example: "200127201635"
+                  contact:
+                    type: object
+                    properties:
+                      mobile:
+                        type: string
+                        example: "+94778060563"
+                      email:
+                        type: string
+                        example: "sanugakuruppu.info@gmail.com"
+        400:
+          description: Bad request. Validation errors in input data.
+        500:
+          description: Internal server error.
+    get:
+      summary: Get all commuters
+      tags:
+      - Commuter
+      description: Retrieve a list of all commuters.
+      responses:
+        200:
+          description: A list of commuters.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    commuterId:
+                      type: number
+                      example: 43814728
+                    name:
+                      type: object
+                      properties:
+                        firstName:
+                          type: string
+                          example: "Sanuga"
+                        lastName:
+                          type: string
+                          example: "Kuruppu"
+                    nic:
+                      type: string
+                      example: "200127201635"
+                    contact:
+                      type: object
+                      properties:
+                        mobile:
+                          type: string
+                          example: "+94778060563"
+                        email:
+                          type: string
+                          example: "sanugakuruppu.info@gmail.com"
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: "2024-12-05T21:40:27.379Z"
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      example: "2024-12-05T21:40:27.379Z"
+        500:
+          description: Internal server error.
+  /booking-service/v1.7/commuters/{commuterId}:
+    get:
+      summary: Get a commuter by ID
+      tags:
+      - Commuter
+      description: Retrieve details of a commuter using their ID.
+      parameters:
+      - in: path
+        name: commuterId
+        required: true
+        description: Unique ID of the commuter to retrieve.
+        schema:
+          type: number
+          example: 43814728
+      responses:
+        200:
+          description: Commuter details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  commuterId:
+                    type: number
+                    example: 43814728
+                  name:
+                    type: object
+                    properties:
+                      firstName:
+                        type: string
+                        example: "Sanuga"
+                      lastName:
+                        type: string
+                        example: "Kuruppu"
+                  nic:
+                    type: string
+                    example: "200127201635"
+                  contact:
+                    type: object
+                    properties:
+                      mobile:
+                        type: string
+                        example: "+94778060563"
+                      email:
+                        type: string
+                        example: "sanugakuruppu.info@gmail.com"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-05T21:40:27.379Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-05T21:40:27.379Z"
+        400:
+          description: Bad request. Validation errors in the input data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, commuterId should be a number"
+        404:
+          description: Commuter not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+  # =================== BOOKING ===================
+  # ================================================
+  # ================================================
+  /booking-service/v1.7/bookings:
+    post:
+      summary: Create a new booking
+      tags:
+      - Booking
+      description: Create a new booking for a trip with the specified commuter, trip ID, and seat number.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                commuter:
+                  type: number
+                  example: 52493143
+                  description: The unique ID of the commuter.
+                trip:
+                  type: number
+                  example: 81957915
+                  description: The unique ID of the trip.
+                seatNumber:
+                  type: number
+                  example: 46
+                  description: The seat number for the booking.
+              required:
+              - commuter
+              - trip
+              - seatNumber
+      responses:
+        201:
+          description: Booking creation success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bookingId:
+                    type: number
+                    example: 79318581
+                  trip:
+                    type: object
+                    properties:
+                      tripId:
+                        type: number
+                        example: 81957915
+                  commuter:
+                    type: object
+                    properties:
+                      commuterId:
+                        type: number
+                        example: 52493143
+                      name:
+                        type: object
+                        properties:
+                          firstName:
+                            type: string
+                            example: "Sanuga"
+                          lastName:
+                            type: string
+                            example: "Kuruppu"
+                      nic:
+                        type: string
+                        example: "200127201635"
+                      contact:
+                        type: object
+                        properties:
+                          mobile:
+                            type: string
+                            example: "+94778060563"
+                          email:
+                            type: string
+                            example: "sanugakuruppu.info@gmail.com"
+                  seatNumber:
+                    type: number
+                    example: 46
+                  bookingStatus:
+                    type: string
+                    example: "CREATING"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-14T15:29:32.018Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-14T15:29:32.018Z"
+        400:
+          description: Bad request. Validation errors in input data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "seat already used"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+    get:
+      summary: Retrieve all bookings
+      tags:
+      - Booking
+      description: Fetch a list of all bookings, including trip, commuter, and booking details.
+      responses:
+        200:
+          description: List of bookings retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    bookingId:
+                      type: number
+                      example: 70543086
+                    trip:
+                      type: object
+                      properties:
+                        tripId:
+                          type: number
+                          example: 81957915
+                        tripNumber:
+                          type: string
+                          example: "TRIP-1edfa22f-0f88-4cd0-83ca-5135f2133230"
+                        tripDate:
+                          type: string
+                          format: date-time
+                          example: "2024-12-17T00:00:00.000Z"
+                        startLocation:
+                          type: object
+                          properties:
+                            coordinates:
+                              type: object
+                              properties:
+                                lat:
+                                  type: number
+                                  format: double
+                                  example: 6.933549671456952
+                                log:
+                                  type: number
+                                  format: double
+                                  example: 79.85550999641683
+                            stationId:
+                              type: number
+                              example: 60287861
+                            name:
+                              type: string
+                              example: "Colombo"
+                        endLocation:
+                          type: object
+                          properties:
+                            coordinates:
+                              type: object
+                              properties:
+                                lat:
+                                  type: number
+                                  format: double
+                                  example: 6.933549671456952
+                                log:
+                                  type: number
+                                  format: double
+                                  example: 79.85550999641683
+                            stationId:
+                              type: number
+                              example: 75776150
+                            name:
+                              type: string
+                              example: "Matara"
+                        schedule:
+                          type: object
+                          properties:
+                            scheduleId:
+                              type: number
+                              example: 57500669
+                            departureTime:
+                              type: string
+                              example: "01:30"
+                            arrivalTime:
+                              type: string
+                              example: "10:00"
+                        vehicle:
+                          type: object
+                          properties:
+                            vehicleId:
+                              type: number
+                              example: 82437327
+                            registrationNumber:
+                              type: string
+                              example: "ABC12345"
+                            model:
+                              type: string
+                              example: "Volvo 960"
+                            capacity:
+                              type: number
+                              example: 50
+                            type:
+                              type: string
+                              example: "Luxury"
+                            airCondition:
+                              type: boolean
+                              example: true
+                            adjustableSeats:
+                              type: boolean
+                              example: true
+                            chargingCapability:
+                              type: boolean
+                              example: false
+                            restStops:
+                              type: boolean
+                              example: true
+                            movie:
+                              type: boolean
+                              example: false
+                            music:
+                              type: boolean
+                              example: true
+                            cupHolder:
+                              type: boolean
+                              example: true
+                            emergencyExit:
+                              type: boolean
+                              example: true
+                        cancellationPolicy:
+                          type: object
+                          properties:
+                            policyId:
+                              type: number
+                              example: 67868134
+                            policyName:
+                              type: string
+                              example: "Health Insurance"
+                            type:
+                              type: string
+                              example: "General"
+                            description:
+                              type: string
+                              example: "Comprehensive health coverage for all employees."
+                    commuter:
+                      type: object
+                      properties:
+                        commuterId:
+                          type: number
+                          example: 52493143
+                        name:
+                          type: object
+                          properties:
+                            firstName:
+                              type: string
+                              example: "Sanuga"
+                            lastName:
+                              type: string
+                              example: "Kuruppu"
+                        contact:
+                          type: object
+                          properties:
+                            mobile:
+                              type: string
+                              example: "+94778060563"
+                            email:
+                              type: string
+                              example: "sanugakuruppu.info@gmail.com"
+                        nic:
+                          type: string
+                          example: "200127201635"
+                    seatNumber:
+                      type: number
+                      example: 41
+                    bookingStatus:
+                      type: string
+                      example: "EXPIRED"
+                    ticketStatus:
+                      type: string
+                      example: "NOT_USED"
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: "2024-12-14T11:54:39.801Z"
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      example: "2024-12-14T11:55:21.193Z"
+                    price:
+                      type: number
+                      example: 7500
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+  /booking-service/v1.7/bookings/{bookingId}:
+    get:
+      summary: Get a booking by ID
+      tags:
+      - Booking
+      description: Retrieve the details of a specific booking using its ID.
+      parameters:
+      - name: bookingId
+        in: path
+        required: true
+        description: The ID of the booking to retrieve.
+        schema:
+          type: integer
+          example: 70543086
+      responses:
+        200:
+          description: Booking found successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trip:
+                    type: object
+                    properties:
+                      startLocation:
+                        type: object
+                        properties:
+                          coordinates:
+                            type: object
+                            properties:
+                              lat:
+                                type: number
+                                format: float
+                                example: 6.933549671456952
+                              log:
+                                type: number
+                                format: float
+                                example: 79.85550999641683
+                          stationId:
+                            type: integer
+                            example: 60287861
+                          name:
+                            type: string
+                            example: "Colombo"
+                      endLocation:
+                        type: object
+                        properties:
+                          coordinates:
+                            type: object
+                            properties:
+                              lat:
+                                type: number
+                                format: float
+                                example: 6.933549671456952
+                              log:
+                                type: number
+                                format: float
+                                example: 79.85550999641683
+                          stationId:
+                            type: integer
+                            example: 75776150
+                          name:
+                            type: string
+                            example: "Matara"
+                      schedule:
+                        type: object
+                        properties:
+                          scheduleId:
+                            type: integer
+                            example: 57500669
+                          departureTime:
+                            type: string
+                            example: "01:30"
+                          arrivalTime:
+                            type: string
+                            example: "10:00"
+                      vehicle:
+                        type: object
+                        properties:
+                          vehicleId:
+                            type: integer
+                            example: 82437327
+                          registrationNumber:
+                            type: string
+                            example: "ABC12345"
+                          model:
+                            type: string
+                            example: "Volvo 960"
+                          capacity:
+                            type: integer
+                            example: 50
+                          type:
+                            type: string
+                            example: "Luxury"
+                          airCondition:
+                            type: boolean
+                            example: true
+                          adjustableSeats:
+                            type: boolean
+                            example: true
+                          chargingCapability:
+                            type: boolean
+                            example: false
+                          restStops:
+                            type: boolean
+                            example: true
+                          movie:
+                            type: boolean
+                            example: false
+                          music:
+                            type: boolean
+                            example: true
+                          cupHolder:
+                            type: boolean
+                            example: true
+                          emergencyExit:
+                            type: boolean
+                            example: true
+                      cancellationPolicy:
+                        type: object
+                        properties:
+                          policyId:
+                            type: integer
+                            example: 67868134
+                          policyName:
+                            type: string
+                            example: "Health Insurance"
+                          type:
+                            type: string
+                            example: "General"
+                          description:
+                            type: string
+                            example: "Comprehensive health coverage for all employees."
+                      tripId:
+                        type: integer
+                        example: 81957915
+                      tripNumber:
+                        type: string
+                        example: "TRIP-1edfa22f-0f88-4cd0-83ca-5135f2133230"
+                      tripDate:
+                        type: string
+                        format: date-time
+                        example: "2024-12-17T00:00:00.000Z"
+                  bookingId:
+                    type: integer
+                    example: 70543086
+                  commuter:
+                    type: object
+                    properties:
+                      name:
+                        type: object
+                        properties:
+                          firstName:
+                            type: string
+                            example: "Sanuga"
+                          lastName:
+                            type: string
+                            example: "Kuruppu"
+                      contact:
+                        type: object
+                        properties:
+                          mobile:
+                            type: string
+                            example: "+94778060563"
+                          email:
+                            type: string
+                            example: "sanugakuruppu.info@gmail.com"
+                      commuterId:
+                        type: integer
+                        example: 52493143
+                      nic:
+                        type: string
+                        example: "200127201635"
+                  seatNumber:
+                    type: integer
+                    example: 41
+                  bookingStatus:
+                    type: string
+                    example: "EXPIRED"
+                  ticketStatus:
+                    type: string
+                    example: "NOT_USED"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-14T11:54:39.801Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-14T11:55:21.193Z"
+                  price:
+                    type: number
+                    example: 7500
+        400:
+          description: Bad request. Validation error in input.
+        404:
+          description: Booking not found.
+        500:
+          description: Internal server error.
+  /booking-service/v1.7/bookings/tripId/{tripId}:
+    get:
+      summary: Get bookings by trip ID
+      tags:
+      - Booking
+      description: Retrieve all bookings associated with a specific trip ID.
+      parameters:
+      - name: tripId
+        in: path
+        required: true
+        description: The ID of the trip for which bookings are to be retrieved.
+        schema:
+          type: integer
+          example: 81957915
+      responses:
+        200:
+          description: List of bookings found successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    bookingId:
+                      type: integer
+                      example: 70543086
+                    commuter:
+                      type: object
+                      properties:
+                        name:
+                          type: object
+                          properties:
+                            firstName:
+                              type: string
+                              example: "Sanuga"
+                            lastName:
+                              type: string
+                              example: "Kuruppu"
+                        contact:
+                          type: object
+                          properties:
+                            mobile:
+                              type: string
+                              example: "+94778060563"
+                            email:
+                              type: string
+                              example: "sanugakuruppu.info@gmail.com"
+                        commuterId:
+                          type: integer
+                          example: 52493143
+                        nic:
+                          type: string
+                          example: "200127201635"
+                    seatNumber:
+                      type: integer
+                      example: 41
+                    bookingStatus:
+                      type: string
+                      example: "EXPIRED"
+                    ticketStatus:
+                      type: string
+                      example: "NOT_USED"
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: "2024-12-14T11:54:39.801Z"
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      example: "2024-12-14T11:55:21.193Z"
+                    price:
+                      type: number
+                      example: 7500
+        400:
+          description: Bad request. Validation error in input.
+        404:
+          description: No bookings found for the given trip ID.
+        500:
+          description: Internal server error.
+  # =================== BOOKING PAYMENTS===================
+  # ================================================
+  # ================================================
+  /booking-service/v1.7/booking-payments:
+    post:
+      summary: Create a new booking payment
+      tags:
+      - Booking Payment
+      description: Initiate a payment for a booking with the provided booking ID.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                booking:
+                  type: number
+                  example: 97810412
+                  description: The unique ID of the booking for which payment is being made.
+              required:
+              - booking
+      responses:
+        201:
+          description: Payment initiation success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  paymentId:
+                    type: number
+                    example: 81284267
+                    description: The unique ID of the payment.
+                  redirectUrl:
+                    type: string
+                    example: "https://theweb.asia/payment-gateway/?transactionId=73b9cd33-803c-484b-91ac-d0a54bbb5ef1"
+                    description: URL to redirect for completing the payment.
+                  amount:
+                    type: number
+                    example: 7500
+                    description: The total amount to be paid.
+                  method:
+                    type: string
+                    example: "CARD"
+                    description: The payment method used.
+                  type:
+                    type: string
+                    example: "BOOKING"
+                    description: The type of payment.
+                  status:
+                    type: string
+                    example: "PENDING"
+                    description: The current status of the payment.
+        400:
+          description: Bad request. Validation errors in input data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "this commuter is not verified"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+    get:
+      summary: Retrieve all booking payments
+      tags:
+      - Booking Payment
+      description: Fetch a list of all booking payments along with their details.
+      responses:
+        200:
+          description: Successfully retrieved booking payments.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    paymentId:
+                      type: number
+                      example: 20931686
+                      description: The unique ID of the payment.
+                    paymentAt:
+                      type: string
+                      format: date-time
+                      example: "2024-12-18T16:06:29.637Z"
+                      description: The date and time of the payment.
+                    amount:
+                      type: number
+                      example: 7500
+                      description: The total amount of the payment.
+                    method:
+                      type: string
+                      example: "CARD"
+                      description: The payment method used.
+                    type:
+                      type: string
+                      example: "BOOKING"
+                      description: The type of payment.
+                    status:
+                      type: string
+                      example: "PENDING"
+                      description: The current status of the payment.
+                    booking:
+                      type: object
+                      properties:
+                        bookingId:
+                          type: number
+                          example: 16702615
+                          description: The unique ID of the associated booking.
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: "2024-12-18T16:06:29.638Z"
+                      description: The date and time the payment was created.
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      example: "2024-12-18T16:06:29.638Z"
+                      description: The date and time the payment was last updated.
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+  /booking-service/v1.7/booking-payments/paymentId/{paymentId}:
+    get:
+      summary: Retrieve booking payment by ID
+      tags:
+      - Booking Payment
+      description: Fetch the details of a specific booking payment by its unique payment ID.
+      parameters:
+      - in: path
+        name: paymentId
+        required: true
+        schema:
+          type: number
+        description: The unique ID of the payment.
+        example: 20931686
+      responses:
+        200:
+          description: Successfully retrieved the booking payment.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  paymentId:
+                    type: number
+                    example: 20931686
+                    description: The unique ID of the payment.
+                  paymentAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-18T16:06:29.637Z"
+                    description: The date and time of the payment.
+                  amount:
+                    type: number
+                    example: 7500
+                    description: The total amount of the payment.
+                  method:
+                    type: string
+                    example: "CARD"
+                    description: The payment method used.
+                  type:
+                    type: string
+                    example: "BOOKING"
+                    description: The type of payment.
+                  status:
+                    type: string
+                    example: "PENDING"
+                    description: The current status of the payment.
+                  booking:
+                    type: object
+                    properties:
+                      bookingId:
+                        type: number
+                        example: 16702615
+                        description: The unique ID of the associated booking.
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-18T16:06:29.638Z"
+                    description: The date and time the payment was created.
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-18T16:06:29.638Z"
+                    description: The date and time the payment was last updated.
+        400:
+          description: Bad request. Invalid paymentId provided.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, paymentId should be a number"
+        404:
+          description: Resource not found. The specified payment ID does not exist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+  /booking-service/v1.7/booking-payments/bookingId/{bookingId}:
+    get:
+      summary: Retrieve booking payments by Booking ID
+      tags:
+      - Booking Payment
+      description: Fetch a list of booking payments associated with a specific booking ID.
+      parameters:
+      - in: path
+        name: bookingId
+        required: true
+        schema:
+          type: number
+        description: The unique ID of the booking.
+        example: 16702615
+      responses:
+        200:
+          description: Successfully retrieved booking payments.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    paymentId:
+                      type: number
+                      example: 20931686
+                      description: The unique ID of the payment.
+                    paymentAt:
+                      type: string
+                      format: date-time
+                      example: "2024-12-18T16:06:29.637Z"
+                      description: The date and time of the payment.
+                    amount:
+                      type: number
+                      example: 7500
+                      description: The total amount of the payment.
+                    method:
+                      type: string
+                      example: "CARD"
+                      description: The payment method used.
+                    type:
+                      type: string
+                      example: "BOOKING"
+                      description: The type of payment.
+                    status:
+                      type: string
+                      example: "PENDING"
+                      description: The current status of the payment.
+                    booking:
+                      type: object
+                      properties:
+                        bookingId:
+                          type: number
+                          example: 16702615
+                          description: The unique ID of the associated booking.
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: "2024-12-18T16:06:29.638Z"
+                      description: The date and time the payment was created.
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      example: "2024-12-18T16:06:29.638Z"
+                      description: The date and time the payment was last updated.
+        400:
+          description: Bad request. Invalid bookingId provided.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "bad request, bookingId should be a number"
+        404:
+          description: Resource not found. The specified booking ID does not have any associated payments.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+  # =================== OTP VERIFICATIONS ===================
+  # ================================================
+  # ================================================
+  /booking-service/v1.7/otp-verifications/{verificationId}:
+    patch:
+      summary: Verify an OTP
+      tags:
+      - OTP Verification
+      description: Verifies the provided OTP for a specific verification ID and updates the status if valid.
+      security: []
+      parameters:
+      - in: path
+        name: verificationId
+        required: true
+        schema:
+          type: number
+        description: The unique ID for the OTP verification request.
+        example: 64789625
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                otp:
+                  type: number
+                  description: The OTP to be verified.
+                  example: 6027
+              required:
+              - otp
+      responses:
+        200:
+          description: Successfully verified the OTP.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  verificationId:
+                    type: number
+                    example: 64789625
+                    description: The unique ID for the OTP verification request.
+                  status:
+                    type: string
+                    example: "VERIFIED"
+                    description: The updated status of the verification.
+                  type:
+                    type: string
+                    example: "COMMUTER_VERIFICATION"
+                    description: The type of verification.
+                  bookingId:
+                    type: number
+                    example: 21955265
+                    description: The booking ID associated with the OTP verification.
+        400:
+          description: Bad request. Either the verificationId or OTP is invalid, or the commuter is already verified.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "otp is required"
+        404:
+          description: Resource not found. Either the OTP is incorrect or the verification ID is invalid/expired.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "resource not found"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
+  # ============== PAYMENT CALLBACKS ===============
+  # ================================================
+  # ================================================
+  /booking-service/v1.7/payment-callbacks:
+    post:
+      summary: Create a new payment callback
+      tags:
+      - Payment Callbacks
+      description: Handles payment callback requests by validating the input, generating a callback ID, and storing the data.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transactionId:
+                  type: string
+                  description: Unique transaction ID from the payment system.
+                  example: "trans12345"
+                systemTransactionId:
+                  type: string
+                  description: System-generated transaction ID for the payment.
+                  example: "sysTrans56789"
+                status:
+                  type: string
+                  description: The status of the payment.
+                  example: "SUCCESS"
+                details:
+                  type: string
+                  description: Additional details about the payment.
+                  example: "payment successful"
+              required:
+              - transactionId
+              - systemTransactionId
+              - status
+      responses:
+        201:
+          description: Callback created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  callbackId:
+                    type: string
+                    example: "shortUUID123"
+                    description: Unique ID generated for the callback.
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-19T16:00:00Z"
+                    description: Timestamp when the callback was created.
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-19T16:00:00Z"
+                    description: Timestamp when the callback was last updated.
+                  status:
+                    type: string
+                    example: "SUCCESS"
+                    description: The status of the payment.
+                  details:
+                    type: string
+                    example: "payment successful"
+                  paymentRequest:
+                    type: object
+                    properties:
+                      transactionId:
+                        type: string
+                        example: "trans12345"
+                        description: The gateway transaction ID related to the payment.
+        400:
+          description: Validation error in the request body.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "transactionId is required"
+        500:
+          description: Internal server error when creating the callback.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
