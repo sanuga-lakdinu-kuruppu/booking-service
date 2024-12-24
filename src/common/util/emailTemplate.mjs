@@ -444,7 +444,7 @@ export const getEmailBodyForSuccessfulOnboarding = (
       <body>
           <div class="email-container">
               <div class="header">
-                  <h1>Successful Commuter Onboardn</h1>
+                  <h1>Successful Commuter Onboard</h1>
               </div>
               <div class="content">
                   <p>Dear ${firstName},</p>
