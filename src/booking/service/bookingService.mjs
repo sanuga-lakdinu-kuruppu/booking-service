@@ -52,6 +52,7 @@ export const createNewBooking = async (booking) => {
   booking.commuter = foundCommuter._id;
   booking.ticketStatus = "NOT_USED";
   booking.bookingStatus = "CREATING";
+  booking.backedUpStatus = "NOT_BACKED_UP";
   booking.expiryAt = new Date(Date.now() + bookingWaiting * 60 * 1000);
 
   const newBooking = new Booking(booking);
