@@ -464,3 +464,99 @@ export const getEmailBodyForSuccessfulOnboarding = (
       </body>
       </html>`;
 };
+
+export const getEmailBodyForLostParcelRequestSuccess = (
+  firstName,
+  requestDetails
+) => {
+  return `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Lost Parcel Request Submitted Successfully</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    background-color: #f4f4f4;
+                    color: #333;
+                    margin: 0;
+                    padding: 0;
+                }
+                .email-container {
+                    max-width: 600px;
+                    margin: 20px auto;
+                    background-color: #ffffff;
+                    border: 1px solid #e0e0e0;
+                    border-radius: 8px;
+                    overflow: hidden;
+                }
+                .header {
+                    background-color: #ff6f61;
+                    color: #ffffff;
+                    text-align: center;
+                    padding: 20px;
+                }
+                .header h1 {
+                    margin: 0;
+                    font-size: 26px;
+                    font-weight: bold;
+                }
+                .content {
+                    padding: 30px;
+                    font-size: 16px;
+                    line-height: 1.6;
+                }
+                .content p {
+                    margin: 15px 0;
+                }
+                .content ul {
+                    margin: 10px 0;
+                    padding-left: 20px;
+                }
+                .footer {
+                    text-align: center;
+                    padding: 20px;
+                    font-size: 12px;
+                    color: #777;
+                    background-color: #f8f8f8;
+                    border-top: 1px solid #e0e0e0;
+                }
+                .footer a {
+                    color: #0073e6;
+                    text-decoration: none;
+                }
+                .highlight {
+                    font-weight: bold;
+                    color: #333;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="email-container">
+                <div class="header">
+                    <h1>Lost Parcel Request Submitted</h1>
+                </div>
+                <div class="content">
+                    <p>Dear ${firstName},</p>
+                    <p>We have successfully received your lost parcel request. Your reference ID is <span class="highlight">${requestDetails.referenceId}</span>. Please use this reference ID to check the status of your request.</p>
+                    <p>Your request details are as follows:</p>
+                    <ul>
+                        <li><strong>Name:</strong> ${requestDetails.name}</li>
+                        <li><strong>Type:</strong> ${requestDetails.type}</li>
+                        <li><strong>Status:</strong> ${requestDetails.status}</li>
+                        <li><strong>Ticket:</strong> ${requestDetails.eTicket}</li>
+                    </ul>
+                    <br>
+                    <p>We are committed to resolving your issue promptly and will keep you updated throughout the process.</p>
+                    <p>If you have any additional information or require further assistance, please do not hesitate to contact our support team.</p>
+                </div>
+                <div class="footer">
+                    <p>&copy; 2024 [Your Company Name]. All rights reserved.</p>
+                    <p><a href="https://yourwebsite.com">Visit our website</a> | <a href="mailto:support@yourcompany.com">Contact Support</a></p>
+                </div>
+            </div>
+        </body>
+        </html>`;
+};

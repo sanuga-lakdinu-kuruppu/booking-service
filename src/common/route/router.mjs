@@ -4,6 +4,7 @@ import bookingRouter from "../../booking/controller/bookingController.mjs";
 import otpVerificationRouter from "../../otpVerification/controller/optVerificationController.mjs";
 import bookingPaymentRouter from "../../bookingPayment/controller/bookingPaymentController.mjs";
 import paymentCallbackRouter from "../../paymentCallback/controller/paymentCallbackController.mjs";
+import lostParcelRouter from "../../lostParcel/controller/lostParcelController.mjs";
 import { logRequestMiddleware } from "../middlewares/logMiddleware.mjs";
 
 const router = Router();
@@ -15,5 +16,6 @@ router.use(bookingRouter);
 router.use(otpVerificationRouter);
 router.use(bookingPaymentRouter);
 router.use(paymentCallbackRouter);
+router.use(lostParcelRouter);
 
 export default router;
