@@ -19,6 +19,7 @@ import {
 import { log } from "../../common/util/log.mjs";
 import { Booking } from "../model/bookingModel.mjs";
 import { TripDuplication } from "../../tripDuplication/model/tripDuplicationModel.mjs";
+import { OtpVerification } from "../../otpVerification/model/otpVerificationModel.mjs";
 
 const router = Router();
 
@@ -205,7 +206,14 @@ router.patch(
         return response.status(400).send({ error: result.errors[0].msg });
       }
 
-      const foundBooking = await Booking.findOne({ bookingId: bookingId });
+      const foundBooking = await Booking.findOne({ bookingId: bookingId })
+        .select(
+          "bookingId trip commuter createdAt updatedAt qrValidationToken eTicket seatNumber price ticketStatus bookingStatus -_id"
+        )
+        .populate({
+          path: "commuter",
+          select: "commuterId name nic contact -_id",
+        });
       if (!foundBooking) {
         log(baseLog, "FAILED", "no booking found for this ticket");
         return response
@@ -257,7 +265,7 @@ router.patch(
         });
       }
 
-      const updatedBooking = await updateBookingStatusById(data, bookingId);
+      const updatedBooking = await updateBookingStatusById(data, bookingId,foundBooking);
 
       if (!updatedBooking) {
         log(baseLog, "FAILED", "resouce not found");
