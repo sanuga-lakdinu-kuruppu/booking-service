@@ -940,22 +940,24 @@ paths:
                   error:
                     type: string
                     example: "internal server error"
-  /bookings/{bookingId}/booking-status:
+  /booking-service/v1.7/bookings/{bookingId}/booking-status:
     patch:
       summary: Update booking status
-      description: Updates the status of a specific booking based on the provided booking ID.
+      tags:
+      - Booking
+      description: Cancell a booking based on the provided booking ID.
       security: []
       parameters:
       - name: bookingId
         in: path
         required: true
-        description: ID of the booking to update.
+        description: ID of the booking to cancel.
         schema:
           type: integer
       - name: body
         in: body
         required: true
-        description: Details for updating the booking status.
+        description: Details for cancelling the booking.
         schema:
           type: object
           required:
@@ -968,7 +970,7 @@ paths:
               description: New status for the booking.
       responses:
         200:
-          description: Booking status updated successfully.
+          description: Booking cancelled successfully.
           content:
             application/json:
               schema:
