@@ -207,30 +207,7 @@ export const updateBookingStatusById = async (
   });
 
   if (!otpVerification) {
-    const otpWaiting = process.env.OTP_WAITING_ETICKET || 4;
-
-    const otp = generateOtp();
-    const optVerification = {
-      verificationId: generateShortUuid(),
-      otp: otp,
-      expiryAt: new Date(Date.now() + otpWaiting * 60 * 1000),
-      bookingId: foundBooking.bookingId,
-      status: "NOT_VERIFIED",
-      type: "E_TICKET_VERIFICATION_GET",
-    };
-
-    const newOtpVerification = new OtpVerification(optVerification);
-    const savedOtpVerification = await newOtpVerification.save();
-
-    const emailBody = getEmailBodyForCommuterVerification(
-      otp,
-      foundBooking.commuter.name.firstName,
-      otpWaiting
-    );
-    await sendOtpEmail(foundBooking.commuter.contact.email, emailBody);
-    return {
-      verificationId: savedOtpVerification.verificationId,
-    };
+    return "NO_VERIFICATION";
   } else {
     const newData = {
       ...data,
@@ -255,7 +232,7 @@ export const updateBookingStatusById = async (
       updatedBooking.bookingId,
       updatedBooking.trip.tripId,
       updatedBooking.cancelledAt,
-      updatedBooking.trip.vehicle.cancellationPolicy
+      updatedBooking.trip.cancellationPolicy
     );
     await sendEmail(
       foundBooking.commuter.contact.email.trim(),
