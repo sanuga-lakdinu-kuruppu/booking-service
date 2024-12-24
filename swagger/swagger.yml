@@ -942,35 +942,37 @@ paths:
                     example: "internal server error"
   /booking-service/v1.7/bookings/{bookingId}/booking-status:
     patch:
-      summary: Update booking status
+      summary: Cancell a booking
       tags:
       - Booking
-      description: Cancell a booking based on the provided booking ID.
+      description: Only certain conditions allow booking cancellations.
       security: []
       parameters:
-      - name: bookingId
-        in: path
+      - in: path
+        name: bookingId
         required: true
-        description: ID of the booking to cancel.
         schema:
           type: integer
-      - name: body
-        in: body
+        description: The ID of the booking to be updated.
+        example: 12345
+      requestBody:
+        description: The new booking status to update.
         required: true
-        description: Details for cancelling the booking.
-        schema:
-          type: object
-          required:
-          - bookingStatus
-          properties:
-            bookingStatus:
-              type: string
-              enum:
-              - CANCELLED
-              description: New status for the booking.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bookingStatus:
+                  type: string
+                  enum:
+                  - CANCELLED
+                  - PAID
+                  description: New status for the booking.
+                  example: "CANCELLED"
       responses:
         200:
-          description: Booking cancelled successfully.
+          description: Booking status updated successfully.
           content:
             application/json:
               schema:
@@ -978,52 +980,53 @@ paths:
                 properties:
                   bookingId:
                     type: integer
-                  createdAt:
-                    type: string
-                    format: date-time
-                  updatedAt:
-                    type: string
-                    format: date-time
-                  expiryAt:
-                    type: string
-                    format: date-time
-                  commuter:
-                    type: object
-                    properties:
-                      commuterId:
-                        type: string
-                      name:
-                        type: object
-                        properties:
-                          firstName:
-                            type: string
-                          lastName:
-                            type: string
-                      nic:
-                        type: string
-                      contact:
-                        type: object
-                        properties:
-                          email:
-                            type: string
-                          phone:
-                            type: string
+                    example: 12345
+                    description: Unique booking ID.
                   trip:
                     type: object
                     properties:
                       tripId:
                         type: integer
+                        example: 45678
                       cancellationPolicy:
                         type: string
-                  seatNumber:
-                    type: integer
+                        example: "No cancellations after 24 hours"
+                  commuter:
+                    type: object
+                    properties:
+                      commuterId:
+                        type: string
+                        example: "COM12345"
+                      name:
+                        type: object
+                        properties:
+                          firstName:
+                            type: string
+                            example: "John"
+                          lastName:
+                            type: string
+                            example: "Doe"
+                      nic:
+                        type: string
+                        example: "982345678V"
+                      contact:
+                        type: object
+                        properties:
+                          email:
+                            type: string
+                            example: "johndoe@example.com"
+                          phone:
+                            type: string
+                            example: "+94712345678"
                   bookingStatus:
                     type: string
-                    enum:
-                    - CANCELLED
-                    - PAID
+                    example: "CANCELLED"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-12-24T12:34:56Z"
         400:
-          description: Bad request due to invalid parameters or request body.
+          description: Bad request due to invalid booking ID or status.
           content:
             application/json:
               schema:
@@ -1031,17 +1034,9 @@ paths:
                 properties:
                   error:
                     type: string
-        404:
-          description: Booking not found or trip is not available.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
+                    example: "bad request, bookingId should be a number"
         401:
-          description: User not verified.
+          description: User not verified to perform the update.
           content:
             application/json:
               schema:
@@ -1049,6 +1044,17 @@ paths:
                 properties:
                   error:
                     type: string
+                    example: "please verify yourself first to cancel the booking."
+        404:
+          description: Booking not found or trip is no longer available.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "no booking found for this ticket"
         500:
           description: Internal server error.
           content:
@@ -1058,6 +1064,7 @@ paths:
                 properties:
                   error:
                     type: string
+                    example: "internal server error"
   # =================== BOOKING PAYMENTS===================
   # ================================================
   # ================================================
