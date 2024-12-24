@@ -3,7 +3,10 @@ import { Booking } from "../model/bookingModel.mjs";
 import { OtpVerification } from "../../otpVerification/model/otpVerificationModel.mjs";
 import { TripDuplication } from "../../tripDuplication/model/tripDuplicationModel.mjs";
 import AWS from "aws-sdk";
-import { getEmailBodyForETicketAndQR } from "../../common/util/emailTemplate.mjs";
+import {
+  getEmailBodyForETicketAndQR,
+  getEmailBodyForBookingCancellation,
+} from "../../common/util/emailTemplate.mjs";
 import {
   SchedulerClient,
   CreateScheduleCommand,
@@ -190,6 +193,57 @@ export const getBookingByEticket = async (eTicket) => {
       verificationId: savedOtpVerification.verificationId,
     };
   }
+};
+
+export const updateBookingStatusById = async (data, bookingId) => {
+  const newData = {
+    ...data,
+    cancelledAt: Date.now(),
+  };
+  const updatedBooking = await Booking.findOneAndUpdate(
+    { bookingId: bookingId },
+    newData,
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+  if (!updatedBooking) return null;
+  await triggerBookingStatusChangedEvent(
+    updatedBooking.trip.tripId,
+    updatedBooking.seatNumber
+  );
+  const emailCancellation = getEmailBodyForBookingCancellation(
+    updatedBooking.commuter.name.firstName,
+    updatedBooking.bookingId,
+    updatedBooking.trip.tripId,
+    updatedBooking.cancelledAt,
+    updatedBooking.trip.vehicle.cancellationPolicy
+  );
+  await sendEmail(
+    updatedBooking.commuter.contact.email.trim(),
+    emailCancellation,
+    "Booking Cancellation Confirmation"
+  );
+  return filterBookingFieldsWithOutVerificationCode(updatedBooking);
+};
+
+const triggerBookingStatusChangedEvent = async (tripId, seatNumber) => {
+  const eventParams = {
+    Entries: [
+      {
+        Source: "booking-service",
+        DetailType: "TRIP_SUPPORT_SERVICE",
+        Detail: JSON.stringify({
+          internalEventType: "EVN_BOOKING_CANCELLED",
+          tripId: tripId,
+          seatNumber: seatNumber,
+        }),
+        EventBusName: "busriya.com_event_bus",
+      },
+    ],
+  };
+  await eventBridge.putEvents(eventParams).promise();
 };
 
 const filterBookingFieldsWithOutVerificationCode = (booking) => ({
