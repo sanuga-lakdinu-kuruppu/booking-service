@@ -38,6 +38,27 @@ export const createNewLostParcel = async (parcel) => {
   return filterLostParcelFieldsWithOutAllDetails(savedParcel);
 };
 
+const sendEmail = async (toEmail, emailBody, subject) => {
+  const params = {
+    Source: process.env.EMAIL_FROM,
+    Destination: {
+      ToAddresses: [toEmail],
+    },
+    Message: {
+      Subject: {
+        Data: subject,
+      },
+      Body: {
+        Html: {
+          Data: emailBody,
+        },
+      },
+    },
+  };
+
+  const emailResponse = await ses.sendEmail(params).promise();
+};
+
 const filterLostParcelFieldsWithOutAllDetails = (lostParcel) => ({
   parcelId: lostParcel.parcelId,
   createdAt: lostParcel.createdAt,
