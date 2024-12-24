@@ -2,6 +2,8 @@ import { Booking } from "../../booking/model/bookingModel.mjs";
 import { LostParcel } from "../model/lostParcelModel.mjs";
 import { v4 as uuidv4 } from "uuid";
 import { getEmailBodyForLostParcelRequestSuccess } from "../../common/util/emailTemplate.mjs";
+import AWS from "aws-sdk";
+const ses = new AWS.SES();
 
 export const createNewLostParcel = async (parcel) => {
   const existingParcel = await LostParcel.findOne({ eTicket: parcel.eTicket });
