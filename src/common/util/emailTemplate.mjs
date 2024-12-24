@@ -376,4 +376,93 @@ export const getEmailBodyForBookingCancellation = (
       </body>
       </html>`;
   };
+
+  export const getEmailBodyForSuccessfulOnboarding = (
+    firstName,
+    bookingId,
+    tripId
+  ) => {
+    return `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Successful Commuter Onboard</title>
+          <style>
+              body {
+                  font-family: Arial, sans-serif;
+                  background-color: #f9f9f9;
+                  color: #333;
+                  margin: 0;
+                  padding: 0;
+              }
+              .email-container {
+                  max-width: 600px;
+                  margin: 20px auto;
+                  background-color: #ffffff;
+                  border: 1px solid #e0e0e0;
+                  border-radius: 8px;
+                  overflow: hidden;
+              }
+              .header {
+                  background-color: #0073e6;
+                  color: #ffffff;
+                  text-align: center;
+                  padding: 20px;
+              }
+              .header h1 {
+                  margin: 0;
+                  font-size: 24px;
+              }
+              .content {
+                  padding: 20px;
+              }
+              .content p {
+                  margin: 10px 0;
+                  line-height: 1.6;
+              }
+              .ticket-info {
+                  background-color: #f0f0f0;
+                  padding: 15px;
+                  border-radius: 5px;
+                  margin-top: 20px;
+              }
+              .footer {
+                  text-align: center;
+                  padding: 15px;
+                  font-size: 12px;
+                  color: #777;
+                  border-top: 1px solid #e0e0e0;
+              }
+              .footer a {
+                  color: #0073e6;
+                  text-decoration: none;
+              }
+          </style>
+      </head>
+      <body>
+          <div class="email-container">
+              <div class="header">
+                  <h1>Successful Ticket Usage Notification</h1>
+              </div>
+              <div class="content">
+                  <p>Dear ${firstName},</p>
+                  <p>We are pleased to confirm that your e-ticket has been successfully used for the trip. Below are the details of your booking:</p>
+                  <div class="ticket-info">
+                      <p><strong>Booking ID:</strong> ${bookingId}</p>
+                      <p><strong>Trip ID:</strong> ${tripId}</p>
+                  </div>
+                  <p>We trust that your journey will be smooth and enjoyable. If you did not authorize this ticket usage or suspect any unauthorized activity, please contact our support team immediately at <a href="mailto:support@yourcompany.com">support@yourcompany.com</a>.</p>
+                  <p>Your security and satisfaction are our highest priorities.</p>
+              </div>
+              <div class="footer">
+                  <p>&copy; 2024 [Your Company Name]. All rights reserved.</p>
+                  <p><a href="https://yourwebsite.com">Visit our website</a> | <a href="mailto:support@yourcompany.com">Contact Support</a></p>
+              </div>
+          </div>
+      </body>
+      </html>`;
+  };
+  
   
