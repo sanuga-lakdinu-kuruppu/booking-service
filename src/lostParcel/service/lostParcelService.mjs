@@ -112,6 +112,52 @@ export const getParcelByReferenceId = async (id) => {
   }
 };
 
+export const updateLostParcel = async (parcelId, parcel) => {
+  const foundParcel = await LostParcel.findOne({ parcelId: parcelId }).select(
+    "parcelId trip eTicket createdAt updatedAt referenceId status type name description commuter takeAwayStation  handedOverAt  handedOverPerson bookingId -_id"
+  );
+
+  if (!foundParcel) return "NO_PARCEL_FOUND";
+
+  const newParcel = {
+    ...foundParcel,
+    status: parcel.status,
+    takeAwayStation: {
+      name: parcel.takeAwayStation || foundParcel.takeAwayStation.name,
+    },
+    handedOverAt: parcel.status === "HANDED_OVER" ? Date.now() : null,
+    handedOverPerson: {
+      firstName:
+        parcel.handedOverPersonFirstName ||
+        foundParcel.handedOverPerson?.firstName,
+      lastName:
+        parcel.handedOverPersonLastName ||
+        foundParcel.handedOverPerson?.lastName,
+      nic: parcel.handedOverPersonNIC || foundParcel.handedOverPerson?.nic,
+    },
+  };
+
+  const updatedParcel = await LostParcel.findOneAndUpdate(
+    { parcelId: parcelId },
+    newParcel,
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  const emailFound = getEmailBodyForLostParcelStatusUpdate(
+    updatedParcel.commuter.name.firstName,
+    updatedParcel
+  );
+  await sendEmail(
+    updatedParcel.commuter.contact.email.trim(),
+    emailFound,
+    `Lost Parcel Status | ${updatedParcel.status} `
+  );
+  return filterLostParcelFieldsWithAllDetails(updatedParcel);
+};
+
 const sendOtpEmail = async (toEmail, emailBody) => {
   const params = {
     Source: process.env.EMAIL_FROM,
@@ -153,6 +199,22 @@ const sendEmail = async (toEmail, emailBody, subject) => {
 
   const emailResponse = await ses.sendEmail(params).promise();
 };
+
+const filterLostParcelFieldsWithAllDetails = (lostParcel) => ({
+  parcelId: lostParcel.parcelId,
+  createdAt: lostParcel.createdAt,
+  updatedAt: lostParcel.updatedAt,
+  eTicket: lostParcel.eTicket,
+  referenceId: lostParcel.referenceId,
+  type: lostParcel.type,
+  status: lostParcel.status,
+  name: lostParcel.name,
+  description: lostParcel.description,
+  commuter: lostParcel.commuter,
+  takeAwayStation: lostParcel.takeAwayStation,
+  handedOverAt: lostParcel.handedOverAt,
+  handedOverPerson: lostParcel.handedOverPerson,
+});
 
 const filterLostParcelFieldsWithOutAllDetails = (lostParcel) => ({
   parcelId: lostParcel.parcelId,
