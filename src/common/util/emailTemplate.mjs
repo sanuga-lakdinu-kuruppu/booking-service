@@ -284,3 +284,96 @@ export const getEmailBodyForETicketAndQR = (
     </body>
     </html>`;
 };
+
+export const getEmailBodyForBookingCancellation = (
+    firstName,
+    bookingId,
+    tripId,
+    cancellationTime,
+    cancellationPolicy
+  ) => {
+    return `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Booking Cancellation Confirmation</title>
+          <style>
+              body {
+                  font-family: Arial, sans-serif;
+                  background-color: #f9f9f9;
+                  color: #333;
+                  margin: 0;
+                  padding: 0;
+              }
+              .email-container {
+                  max-width: 600px;
+                  margin: 20px auto;
+                  background-color: #ffffff;
+                  border: 1px solid #e0e0e0;
+                  border-radius: 8px;
+                  overflow: hidden;
+              }
+              .header {
+                  background-color: #d9534f;
+                  color: #ffffff;
+                  text-align: center;
+                  padding: 20px;
+              }
+              .header h1 {
+                  margin: 0;
+                  font-size: 24px;
+              }
+              .content {
+                  padding: 20px;
+              }
+              .content p {
+                  margin: 10px 0;
+                  line-height: 1.6;
+              }
+              .info-box {
+                  background-color: #f0f0f0;
+                  padding: 15px;
+                  border-radius: 5px;
+                  margin-top: 20px;
+              }
+              .footer {
+                  text-align: center;
+                  padding: 15px;
+                  font-size: 12px;
+                  color: #777;
+                  border-top: 1px solid #e0e0e0;
+              }
+              .footer a {
+                  color: #d9534f;
+                  text-decoration: none;
+              }
+          </style>
+      </head>
+      <body>
+          <div class="email-container">
+              <div class="header">
+                  <h1>Booking Cancellation Confirmation</h1>
+              </div>
+              <div class="content">
+                  <p>Dear ${firstName},</p>
+                  <p>We regret to inform you that your booking has been cancelled. Below are the details of your cancellation:</p>
+                  <div class="info-box">
+                      <p><strong>Booking ID:</strong> ${bookingId}</p>
+                      <p><strong>Trip ID:</strong> ${tripId}</p>
+                      <p><strong>Cancellation Time:</strong> ${cancellationTime}</p>
+                      <p><strong>Cancellation Policy:</strong> ${cancellationPolicy}</p>
+                  </div>
+                  <p>You can receive your refund in accordance with our cancellation policy at the nearest main bus station. Please bring your e-ticket or booking ID along with your NIC card to facilitate the refund process.</p>
+                  <p>If you have any further questions, feel free to contact our support team. Thank you for choosing our service, and we hope to serve you again in the future.</p>
+              </div>
+              <div class="footer">
+                  <p>&copy; 2024 [Your Company Name]. All rights reserved.</p>
+                  <p><a href="https://yourwebsite.com">Visit our website</a> | <a href="mailto:support@yourcompany.com">Contact Support</a></p>
+              </div>
+          </div>
+      </body>
+      </html>`;
+  };
+  
