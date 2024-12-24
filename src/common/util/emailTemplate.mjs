@@ -286,13 +286,13 @@ export const getEmailBodyForETicketAndQR = (
 };
 
 export const getEmailBodyForBookingCancellation = (
-    firstName,
-    bookingId,
-    tripId,
-    cancellationTime,
-    cancellationPolicy
-  ) => {
-    return `
+  firstName,
+  bookingId,
+  tripId,
+  cancellationTime,
+  cancellationPolicy
+) => {
+  return `
       <!DOCTYPE html>
       <html lang="en">
       <head>
@@ -375,14 +375,14 @@ export const getEmailBodyForBookingCancellation = (
           </div>
       </body>
       </html>`;
-  };
+};
 
-  export const getEmailBodyForSuccessfulOnboarding = (
-    firstName,
-    bookingId,
-    tripId
-  ) => {
-    return `
+export const getEmailBodyForSuccessfulOnboarding = (
+  firstName,
+  bookingId,
+  tripNumber
+) => {
+  return `
       <!DOCTYPE html>
       <html lang="en">
       <head>
@@ -444,14 +444,14 @@ export const getEmailBodyForBookingCancellation = (
       <body>
           <div class="email-container">
               <div class="header">
-                  <h1>Successful Ticket Usage Notification</h1>
+                  <h1>Successful Commuter Onboardn</h1>
               </div>
               <div class="content">
                   <p>Dear ${firstName},</p>
                   <p>We are pleased to confirm that your e-ticket has been successfully used for the trip. Below are the details of your booking:</p>
                   <div class="ticket-info">
                       <p><strong>Booking ID:</strong> ${bookingId}</p>
-                      <p><strong>Trip ID:</strong> ${tripId}</p>
+                      <p><strong>Trip :</strong> ${tripNumber}</p>
                   </div>
                   <p>We trust that your journey will be smooth and enjoyable. If you did not authorize this ticket usage or suspect any unauthorized activity, please contact our support team immediately at <a href="mailto:support@yourcompany.com">support@yourcompany.com</a>.</p>
                   <p>Your security and satisfaction are our highest priorities.</p>
@@ -463,6 +463,4 @@ export const getEmailBodyForBookingCancellation = (
           </div>
       </body>
       </html>`;
-  };
-  
-  
+};
