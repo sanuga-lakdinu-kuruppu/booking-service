@@ -195,37 +195,75 @@ export const getBookingByEticket = async (eTicket) => {
   }
 };
 
-export const updateBookingStatusById = async (data, bookingId) => {
-  const newData = {
-    ...data,
-    cancelledAt: Date.now(),
-  };
-  const updatedBooking = await Booking.findOneAndUpdate(
-    { bookingId: bookingId },
-    newData,
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
-  if (!updatedBooking) return null;
-  await triggerBookingStatusChangedEvent(
-    updatedBooking.trip.tripId,
-    updatedBooking.seatNumber
-  );
-  const emailCancellation = getEmailBodyForBookingCancellation(
-    updatedBooking.commuter.name.firstName,
-    updatedBooking.bookingId,
-    updatedBooking.trip.tripId,
-    updatedBooking.cancelledAt,
-    updatedBooking.trip.vehicle.cancellationPolicy
-  );
-  await sendEmail(
-    updatedBooking.commuter.contact.email.trim(),
-    emailCancellation,
-    "Booking Cancellation Confirmation"
-  );
-  return filterBookingFieldsWithOutVerificationCode(updatedBooking);
+export const updateBookingStatusById = async (
+  data,
+  bookingId,
+  foundBooking
+) => {
+  const otpVerification = await OtpVerification.findOne({
+    bookingId: foundBooking.bookingId,
+    type: "E_TICKET_VERIFICATION_GET",
+    status: "VERIFIED",
+  });
+
+  if (!otpVerification) {
+    const otpWaiting = process.env.OTP_WAITING_ETICKET || 4;
+
+    const otp = generateOtp();
+    const optVerification = {
+      verificationId: generateShortUuid(),
+      otp: otp,
+      expiryAt: new Date(Date.now() + otpWaiting * 60 * 1000),
+      bookingId: foundBooking.bookingId,
+      status: "NOT_VERIFIED",
+      type: "E_TICKET_VERIFICATION_GET",
+    };
+
+    const newOtpVerification = new OtpVerification(optVerification);
+    const savedOtpVerification = await newOtpVerification.save();
+
+    const emailBody = getEmailBodyForCommuterVerification(
+      otp,
+      foundBooking.commuter.name.firstName,
+      otpWaiting
+    );
+    await sendOtpEmail(foundBooking.commuter.contact.email, emailBody);
+    return {
+      verificationId: savedOtpVerification.verificationId,
+    };
+  } else {
+    const newData = {
+      ...data,
+      cancelledAt: Date.now(),
+    };
+    const updatedBooking = await Booking.findOneAndUpdate(
+      { bookingId: bookingId },
+      newData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    if (!updatedBooking) return null;
+    await triggerBookingStatusChangedEvent(
+      updatedBooking.trip.tripId,
+      updatedBooking.seatNumber
+    );
+
+    const emailCancellation = getEmailBodyForBookingCancellation(
+      foundBooking.commuter.name.firstName,
+      updatedBooking.bookingId,
+      updatedBooking.trip.tripId,
+      updatedBooking.cancelledAt,
+      updatedBooking.trip.vehicle.cancellationPolicy
+    );
+    await sendEmail(
+      foundBooking.commuter.contact.email.trim(),
+      emailCancellation,
+      "Booking Cancellation Confirmation"
+    );
+    return filterBookingFieldsWithOutVerificationCode(updatedBooking);
+  }
 };
 
 const triggerBookingStatusChangedEvent = async (tripId, seatNumber) => {
