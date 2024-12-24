@@ -232,7 +232,7 @@ export const updateBookingStatusById = async (
       updatedBooking.bookingId,
       updatedBooking.trip.tripId,
       updatedBooking.cancelledAt,
-      updatedBooking.trip.cancellationPolicy
+      updatedBooking.trip.cancellationPolicy.description
     );
     await sendEmail(
       foundBooking.commuter.contact.email.trim(),
