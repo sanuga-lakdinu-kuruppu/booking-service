@@ -940,6 +940,122 @@ paths:
                   error:
                     type: string
                     example: "internal server error"
+  /bookings/{bookingId}/booking-status:
+    patch:
+      summary: Update booking status
+      description: Updates the status of a specific booking based on the provided booking ID.
+      security: []
+      parameters:
+      - name: bookingId
+        in: path
+        required: true
+        description: ID of the booking to update.
+        schema:
+          type: integer
+      - name: body
+        in: body
+        required: true
+        description: Details for updating the booking status.
+        schema:
+          type: object
+          required:
+          - bookingStatus
+          properties:
+            bookingStatus:
+              type: string
+              enum:
+              - CANCELLED
+              description: New status for the booking.
+      responses:
+        200:
+          description: Booking status updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bookingId:
+                    type: integer
+                  createdAt:
+                    type: string
+                    format: date-time
+                  updatedAt:
+                    type: string
+                    format: date-time
+                  expiryAt:
+                    type: string
+                    format: date-time
+                  commuter:
+                    type: object
+                    properties:
+                      commuterId:
+                        type: string
+                      name:
+                        type: object
+                        properties:
+                          firstName:
+                            type: string
+                          lastName:
+                            type: string
+                      nic:
+                        type: string
+                      contact:
+                        type: object
+                        properties:
+                          email:
+                            type: string
+                          phone:
+                            type: string
+                  trip:
+                    type: object
+                    properties:
+                      tripId:
+                        type: integer
+                      cancellationPolicy:
+                        type: string
+                  seatNumber:
+                    type: integer
+                  bookingStatus:
+                    type: string
+                    enum:
+                    - CANCELLED
+                    - PAID
+        400:
+          description: Bad request due to invalid parameters or request body.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        404:
+          description: Booking not found or trip is not available.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        401:
+          description: User not verified.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
   # =================== BOOKING PAYMENTS===================
   # ================================================
   # ================================================
