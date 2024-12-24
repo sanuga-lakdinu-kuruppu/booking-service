@@ -213,6 +213,12 @@ const bookingSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    backedUpStatus: {
+      type: String,
+      required: true,
+      maxlength: 20,
+      trim: true,
+    },
     bookingStatus: {
       type: String,
       required: true,
