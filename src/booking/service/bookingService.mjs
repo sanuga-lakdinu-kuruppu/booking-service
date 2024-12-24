@@ -6,6 +6,7 @@ import AWS from "aws-sdk";
 import {
   getEmailBodyForETicketAndQR,
   getEmailBodyForBookingCancellation,
+  getEmailBodyForSuccessfulOnboarding,
 } from "../../common/util/emailTemplate.mjs";
 import {
   SchedulerClient,
@@ -243,6 +244,33 @@ export const updateBookingStatusById = async (
   }
 };
 
+export const useTicket = async (data, foundBooking) => {
+  const newData = {
+    ticketStatus: data.ticketStatus,
+  };
+  const updatedBooking = await Booking.findOneAndUpdate(
+    { bookingId: foundBooking.bookingId },
+    newData,
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+  if (!updatedBooking) return null;
+
+  const emailOnboard = getEmailBodyForSuccessfulOnboarding(
+    foundBooking.commuter.name.firstName,
+    foundBooking.bookingId,
+    foundBooking.trip.tripId
+  );
+  await sendEmail(
+    foundBooking.commuter.contact.email.trim(),
+    emailOnboard,
+    "Successful Commuter Onboard"
+  );
+  return filterBookingFieldsWithOutVerificationCode(updatedBooking);
+};
+
 const triggerBookingStatusChangedEvent = async (tripId, seatNumber) => {
   const eventParams = {
     Entries: [
@@ -270,6 +298,7 @@ const filterBookingFieldsWithOutVerificationCode = (booking) => ({
   trip: booking.trip,
   seatNumber: booking.seatNumber,
   bookingStatus: booking.bookingStatus,
+  ticketStatus: booking.ticketStatus,
 });
 
 const filterBookingFields = (booking, verificationId) => ({
