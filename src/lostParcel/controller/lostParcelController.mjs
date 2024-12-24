@@ -133,7 +133,7 @@ router.get(
       const foundParcel = await getParcelByReferenceId(referenceId);
 
       if (foundParcel === "NO_PARCEL_FOUND") {
-        log(baseLog, "FAILED", error.message);
+        log(baseLog, "FAILED", "no parcel found for this reference id");
         return response
           .status(404)
           .send({ error: "no parcel found for this reference id" });

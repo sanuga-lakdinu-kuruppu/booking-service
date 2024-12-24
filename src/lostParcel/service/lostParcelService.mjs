@@ -2,6 +2,7 @@ import { Booking } from "../../booking/model/bookingModel.mjs";
 import { LostParcel } from "../model/lostParcelModel.mjs";
 import { OtpVerification } from "../../otpVerification/model/otpVerificationModel.mjs";
 import { v4 as uuidv4 } from "uuid";
+import { generateShortUuid, generateOtp } from "../../common/util/unique.mjs";
 import {
   getEmailBodyForLostParcelRequestSuccess,
   getEmailBodyForCommuterVerification,
@@ -78,7 +79,7 @@ export const getParcelByReferenceId = async (id) => {
       foundParcel
     );
     await sendEmail(
-      foundBooking.commuter.contact.email.trim(),
+      foundParcel.commuter.contact.email.trim(),
       emailFound,
       "Lost Parcel Status"
     );
@@ -91,7 +92,7 @@ export const getParcelByReferenceId = async (id) => {
       verificationId: generateShortUuid(),
       otp: otp,
       expiryAt: new Date(Date.now() + otpWaiting * 60 * 1000),
-      bookingId: foundBooking.bookingId,
+      bookingId: foundParcel.bookingId,
       status: "NOT_VERIFIED",
       type: "LOST_PARCEL_VERIFICATION_GET",
     };
