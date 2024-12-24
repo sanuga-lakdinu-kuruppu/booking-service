@@ -560,3 +560,130 @@ export const getEmailBodyForLostParcelRequestSuccess = (
         </body>
         </html>`;
 };
+
+export const getEmailBodyForLostParcelStatusUpdate = (
+  firstName,
+  requestDetails
+) => {
+  return `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Lost Parcel Request Status Update</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        background-color: #f9f9f9;
+                        color: #333;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .email-container {
+                        max-width: 600px;
+                        margin: 20px auto;
+                        background-color: #ffffff;
+                        border: 1px solid #ddd;
+                        border-radius: 8px;
+                        overflow: hidden;
+                        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+                    }
+                    .header {
+                        background-color: #0056b3;
+                        color: #ffffff;
+                        text-align: center;
+                        padding: 20px;
+                    }
+                    .header h1 {
+                        margin: 0;
+                        font-size: 24px;
+                        font-weight: bold;
+                    }
+                    .content {
+                        padding: 30px;
+                        font-size: 16px;
+                        line-height: 1.8;
+                        color: #555;
+                    }
+                    .content p {
+                        margin: 15px 0;
+                    }
+                    .content ul {
+                        margin: 15px 0;
+                        padding-left: 20px;
+                        color: #444;
+                    }
+                    .footer {
+                        text-align: center;
+                        padding: 20px;
+                        font-size: 14px;
+                        color: #777;
+                        background-color: #f5f5f5;
+                        border-top: 1px solid #ddd;
+                    }
+                    .footer a {
+                        color: #0056b3;
+                        text-decoration: none;
+                    }
+                    .highlight {
+                        font-weight: bold;
+                        color: #333;
+                    }
+                    .status {
+                        font-weight: bold;
+                        color: #d9534f;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="email-container">
+                    <div class="header">
+                        <h1>Lost Parcel Request Status Update</h1>
+                    </div>
+                    <div class="content">
+                        <p>Dear ${firstName},</p>
+                        <p>We are writing to provide an update regarding your lost parcel request. Your reference ID is <span class="highlight">${
+                          requestDetails.referenceId
+                        }</span>.</p>
+                        <p>Current Status: <span class="status">${
+                          requestDetails.status
+                        }</span></p>
+                        <p>Below are the updated details of your request:</p>
+                        <ul>
+                            <li><strong>Name:</strong> ${
+                              requestDetails.name
+                            }</li>
+                            <li><strong>Parcel Type:</strong> ${
+                              requestDetails.type
+                            }</li>
+                            <li><strong>Original Status:</strong> ${
+                              requestDetails.status
+                            }</li>
+                            <li><strong>Ticket Number:</strong> ${
+                              requestDetails.eTicket
+                            }</li>
+                            <li><strong>Pick-up Station:</strong> ${
+                              requestDetails.takeAwayStation?.name ||
+                              "Not specified"
+                            }</li>
+                            <li><strong>Handover Time:</strong> ${
+                              requestDetails.handedOverAt || "Not specified"
+                            }</li>
+                            <li><strong>Handover Person:</strong> ${
+                              requestDetails.handedOverPerson
+                                ? `${requestDetails.handedOverPerson.firstName} ${requestDetails.handedOverPerson.lastName}`
+                                : "Not specified"
+                            }</li>
+                        </ul>
+                        <p>We are committed to resolving your request as swiftly as possible. If you have further inquiries, please contact our support team quoting your reference ID.</p>
+                        <p>Thank you for your patience and understanding.</p>
+                    </div>
+                    <div class="footer">
+                        <p>&copy; 2024 [Your Company Name]. All rights reserved.</p>
+                        <p><a href="https://yourwebsite.com">Visit our website</a> | <a href="mailto:support@yourcompany.com">Contact Support</a></p>
+                    </div>
+                </div>
+            </body>
+            </html>`;
+};
