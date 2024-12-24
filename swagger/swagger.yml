@@ -940,6 +940,198 @@ paths:
                   error:
                     type: string
                     example: "internal server error"
+    patch:
+      summary: Use the ticket or scan the ticket
+      tags:
+      - Booking
+      description: Updates the `ticketStatus` of a booking identified by `eTicket` if the booking exists and meets the required conditions.
+      parameters:
+      - name: eTicket
+        in: path
+        required: true
+        description: The eTicket string identifying the booking.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ticketStatus:
+                  type: string
+                  enum: [ USED ]
+                  description: Status of the ticket to be updated.
+              required:
+              - ticketStatus
+      responses:
+        200:
+          description: Successfully updated the ticket status.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bookingId:
+                    type: integer
+                  trip:
+                    type: object
+                    properties:
+                      tripId:
+                        type: integer
+                      tripNumber:
+                        type: string
+                      tripDate:
+                        type: string
+                        format: date-time
+                      startLocation:
+                        type: object
+                        properties:
+                          stationId:
+                            type: integer
+                          name:
+                            type: string
+                          coordinates:
+                            type: object
+                            properties:
+                              lat:
+                                type: number
+                              log:
+                                type: number
+                      endLocation:
+                        type: object
+                        properties:
+                          stationId:
+                            type: integer
+                          name:
+                            type: string
+                          coordinates:
+                            type: object
+                            properties:
+                              lat:
+                                type: number
+                              log:
+                                type: number
+                      route:
+                        type: object
+                        properties:
+                          routeId:
+                            type: integer
+                          routeNumber:
+                            type: string
+                          routeName:
+                            type: string
+                          travelDistance:
+                            type: string
+                          travelDuration:
+                            type: string
+                      schedule:
+                        type: object
+                        properties:
+                          scheduleId:
+                            type: integer
+                          departureTime:
+                            type: string
+                          arrivalTime:
+                            type: string
+                      vehicle:
+                        type: object
+                        properties:
+                          vehicleId:
+                            type: integer
+                          registrationNumber:
+                            type: string
+                          model:
+                            type: string
+                          capacity:
+                            type: integer
+                          type:
+                            type: string
+                          airCondition:
+                            type: boolean
+                          adjustableSeats:
+                            type: boolean
+                          chargingCapability:
+                            type: boolean
+                          restStops:
+                            type: boolean
+                          movie:
+                            type: boolean
+                          music:
+                            type: boolean
+                          cupHolder:
+                            type: boolean
+                          emergencyExit:
+                            type: boolean
+                      cancellationPolicy:
+                        type: object
+                        properties:
+                          policyId:
+                            type: integer
+                          policyName:
+                            type: string
+                          type:
+                            type: string
+                          description:
+                            type: string
+                  commuter:
+                    type: object
+                    properties:
+                      commuterId:
+                        type: integer
+                      name:
+                        type: string
+                      nic:
+                        type: string
+                      contact:
+                        type: string
+                  createdAt:
+                    type: string
+                    format: date-time
+                  updatedAt:
+                    type: string
+                    format: date-time
+                  qrValidationToken:
+                    type: string
+                  eTicket:
+                    type: string
+                  seatNumber:
+                    type: integer
+                  price:
+                    type: number
+                  ticketStatus:
+                    type: string
+                    enum: [ USED ]
+                  bookingStatus:
+                    type: string
+        400:
+          description: Bad request due to validation errors or ticket already used.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        404:
+          description: Booking not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
   /booking-service/v1.7/bookings/{bookingId}/booking-status:
     patch:
       summary: Cancell a booking
