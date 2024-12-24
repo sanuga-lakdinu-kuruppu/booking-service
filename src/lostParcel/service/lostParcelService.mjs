@@ -53,14 +53,14 @@ export const getAllLostParcels = async () => {
 };
 
 export const getParcelById = async (id) => {
-  const foundParcel = await LostParcel.find({ parcelId: id }).select(
+  const foundParcel = await LostParcel.findOne({ parcelId: id }).select(
     "parcelId trip eTicket createdAt updatedAt referenceId status type name description commuter takeAwayStation  handedOverAt  handedOverPerson bookingId -_id"
   );
   return foundParcel;
 };
 
 export const getParcelByReferenceId = async (id) => {
-  const foundParcel = await LostParcel.find({ referenceId: id }).select(
+  const foundParcel = await LostParcel.findOne({ referenceId: id }).select(
     "parcelId trip eTicket createdAt updatedAt referenceId status type name description commuter takeAwayStation  handedOverAt  handedOverPerson bookingId -_id"
   );
 
