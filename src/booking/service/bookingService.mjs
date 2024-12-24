@@ -261,7 +261,7 @@ export const useTicket = async (data, foundBooking) => {
   const emailOnboard = getEmailBodyForSuccessfulOnboarding(
     foundBooking.commuter.name.firstName,
     foundBooking.bookingId,
-    foundBooking.trip.tripId
+    foundBooking.trip.tripNumber
   );
   await sendEmail(
     foundBooking.commuter.contact.email.trim(),

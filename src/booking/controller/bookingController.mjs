@@ -238,6 +238,17 @@ router.patch(
         });
       }
 
+      if (foundBooking.ticketStatus === "USED") {
+        log(
+          baseLog,
+          "FAILED",
+          `cannot cancell the booking, because the ticket associated with this booking is already used.`
+        );
+        return response.status(400).send({
+          error: `cannot cancell the booking, because the ticket associated with this booking is already used.`,
+        });
+      }
+
       if (foundTripDuplication.bookingStatus !== "ENABLED") {
         log(
           baseLog,
