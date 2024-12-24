@@ -8,6 +8,7 @@ import {
 import { generateShortUuid } from "../../common/util/unique.mjs";
 import { bookingSchema } from "../schema/bookingSchema.mjs";
 import { bookingStatusSchema } from "../schema/bookingStatusSchema.mjs";
+import { ticketStatusSchema } from "../schema/ticketStatusSchema.mjs";
 import {
   createNewBooking,
   getAllBookings,
@@ -15,6 +16,7 @@ import {
   getBookingByTripId,
   getBookingByEticket,
   updateBookingStatusById,
+  useTicket,
 } from "../service/bookingService.mjs";
 import { log } from "../../common/util/log.mjs";
 import { Booking } from "../model/bookingModel.mjs";
@@ -277,11 +279,67 @@ router.patch(
       }
       if (updatedBooking === "NO_VERIFICATION") {
         log(baseLog, "FAILED", "user not verified");
+        return response.status(401).send({
+          error: "please verify yourself first to cancel the booking.",
+        });
+      }
+      log(baseLog, "SUCCESS", {});
+      return response.send(updatedBooking);
+    } catch (error) {
+      log(baseLog, "FAILED", error.message);
+      return response.status(500).send({ error: "internal server error" });
+    }
+  }
+);
+
+router.patch(
+  `${API_PREFIX}/bookings/eTicket/:eTicket`,
+  param("eTicket")
+    .isString()
+    .withMessage("bad request, eTicket should be a string"),
+  checkSchema(ticketStatusSchema),
+  async (request, response) => {
+    const baseLog = request.baseLog;
+
+    try {
+      const result = validationResult(request);
+      const {
+        params: { eTicket },
+      } = request;
+      const data = matchedData(request);
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
+        return response.status(400).send({ error: result.errors[0].msg });
+      }
+
+      const foundBooking = await Booking.findOne({
+        eTicket: eTicket,
+        bookingStatus: "PAID",
+      })
+        .select(
+          "bookingId trip commuter createdAt updatedAt qrValidationToken eTicket seatNumber price ticketStatus bookingStatus ticketStatus -_id"
+        )
+        .populate({
+          path: "commuter",
+          select: "commuterId name nic contact -_id",
+        });
+
+      if (!foundBooking) {
+        log(baseLog, "FAILED", "no booking found for this ticket");
         return response
-          .status(401)
-          .send({
-            error: "please verify yourself first to cancel the booking.",
-          });
+          .status(404)
+          .send({ error: "no booking found for this ticket" });
+      }
+      if (foundBooking.ticketStatus === "USED") {
+        log(baseLog, "FAILED", "ticket is already used");
+        return response.status(400).send({ error: "ticket is already used" });
+      }
+
+      const updatedBooking = await useTicket(data, foundBooking);
+
+      if (!updatedBooking) {
+        log(baseLog, "FAILED", "resouce not found");
+        return response.status(404).send({ error: "resource not found" });
       }
       log(baseLog, "SUCCESS", {});
       return response.send(updatedBooking);
