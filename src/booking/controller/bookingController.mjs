@@ -265,11 +265,23 @@ router.patch(
         });
       }
 
-      const updatedBooking = await updateBookingStatusById(data, bookingId,foundBooking);
+      const updatedBooking = await updateBookingStatusById(
+        data,
+        bookingId,
+        foundBooking
+      );
 
       if (!updatedBooking) {
         log(baseLog, "FAILED", "resouce not found");
         return response.status(404).send({ error: "resource not found" });
+      }
+      if (updatedBooking === "NO_VERIFICATION") {
+        log(baseLog, "FAILED", "user not verified");
+        return response
+          .status(401)
+          .send({
+            error: "please verify yourself first to cancel the booking.",
+          });
       }
       log(baseLog, "SUCCESS", {});
       return response.send(updatedBooking);
