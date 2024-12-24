@@ -8,11 +8,13 @@ import {
 import { generateShortUuid } from "../../common/util/unique.mjs";
 import { log } from "../../common/util/log.mjs";
 import { lostParcelSchema } from "../schema/lostParcelSchema.mjs";
+import { lostParcelUpdateSchema } from "../schema/lostParcelUpdateSchema.mjs";
 import {
   createNewLostParcel,
   getAllLostParcels,
   getParcelById,
   getParcelByReferenceId,
+  updateLostParcel,
 } from "../service/lostParcelService.mjs";
 
 const router = Router();
@@ -141,6 +143,47 @@ router.get(
 
       log(baseLog, "SUCCESS", {});
       return response.send(foundParcel);
+    } catch (error) {
+      log(baseLog, "FAILED", error.message);
+      return response.status(500).send({ error: "internal server error" });
+    }
+  }
+);
+
+router.patch(
+  `${API_PREFIX}/lost-parcels/:parcelId`,
+  param("parcelId")
+    .isNumeric()
+    .withMessage("bad request, parcelId should be a number"),
+  checkSchema(lostParcelUpdateSchema),
+  async (request, response) => {
+    const baseLog = request.baseLog;
+
+    try {
+      const result = validationResult(request);
+      const {
+        params: { parcelId },
+      } = request;
+      const data = matchedData(request);
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
+        return response.status(400).send({ error: result.errors[0].msg });
+      }
+
+      const updatedParcel = await updateLostParcel(parcelId, data);
+
+      if (!updatedParcel) {
+        log(baseLog, "FAILED", "internal server error");
+        return response.status(500).send({ error: "internal server error" });
+      }
+      if (updatedParcel === "NO_PARCEL_FOUND") {
+        log(baseLog, "FAILED", "no parcel found for this reference id");
+        return response
+          .status(404)
+          .send({ error: "no parcel found for this reference id" });
+      }
+      log(baseLog, "SUCCESS", {});
+      return response.send(updatedParcel);
     } catch (error) {
       log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });

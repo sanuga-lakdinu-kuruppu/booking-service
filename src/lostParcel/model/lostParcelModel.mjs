@@ -71,9 +71,6 @@ const lostParcelSchema = new mongoose.Schema(
       },
     },
     takeAwayStation: {
-      stationId: {
-        type: Number,
-      },
       name: {
         type: String,
       },
