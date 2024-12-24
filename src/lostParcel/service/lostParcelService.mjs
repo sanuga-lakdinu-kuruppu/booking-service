@@ -1,7 +1,12 @@
 import { Booking } from "../../booking/model/bookingModel.mjs";
 import { LostParcel } from "../model/lostParcelModel.mjs";
+import { OtpVerification } from "../../otpVerification/model/otpVerificationModel.mjs";
 import { v4 as uuidv4 } from "uuid";
-import { getEmailBodyForLostParcelRequestSuccess } from "../../common/util/emailTemplate.mjs";
+import {
+  getEmailBodyForLostParcelRequestSuccess,
+  getEmailBodyForCommuterVerification,
+  getEmailBodyForLostParcelStatusUpdate,
+} from "../../common/util/emailTemplate.mjs";
 import AWS from "aws-sdk";
 const ses = new AWS.SES();
 
@@ -38,6 +43,93 @@ export const createNewLostParcel = async (parcel) => {
     "Lost Parcel Request Submitted"
   );
   return filterLostParcelFieldsWithOutAllDetails(savedParcel);
+};
+
+export const getAllLostParcels = async () => {
+  const foundParcels = await LostParcel.find().select(
+    "parcelId trip eTicket createdAt updatedAt referenceId status type name description commuter takeAwayStation  handedOverAt  handedOverPerson bookingId -_id"
+  );
+  return foundParcels;
+};
+
+export const getParcelById = async (id) => {
+  const foundParcel = await LostParcel.find({ parcelId: id }).select(
+    "parcelId trip eTicket createdAt updatedAt referenceId status type name description commuter takeAwayStation  handedOverAt  handedOverPerson bookingId -_id"
+  );
+  return foundParcel;
+};
+
+export const getParcelByReferenceId = async (id) => {
+  const foundParcel = await LostParcel.find({ referenceId: id }).select(
+    "parcelId trip eTicket createdAt updatedAt referenceId status type name description commuter takeAwayStation  handedOverAt  handedOverPerson bookingId -_id"
+  );
+
+  if (!foundParcel) return "NO_PARCEL_FOUND";
+
+  const otpVerification = await OtpVerification.findOne({
+    bookingId: foundParcel.bookingId,
+    type: "LOST_PARCEL_VERIFICATION_GET",
+    status: "VERIFIED",
+  });
+
+  if (otpVerification) {
+    const emailFound = getEmailBodyForLostParcelStatusUpdate(
+      foundParcel.commuter.name.firstName,
+      foundParcel
+    );
+    await sendEmail(
+      foundBooking.commuter.contact.email.trim(),
+      emailFound,
+      "Lost Parcel Status"
+    );
+    return filterLostParcelFieldsWithOutAllDetails(foundParcel);
+  } else {
+    const otpWaiting = process.env.OTP_WAITING_ETICKET || 4;
+
+    const otp = generateOtp();
+    const optVerification = {
+      verificationId: generateShortUuid(),
+      otp: otp,
+      expiryAt: new Date(Date.now() + otpWaiting * 60 * 1000),
+      bookingId: foundBooking.bookingId,
+      status: "NOT_VERIFIED",
+      type: "LOST_PARCEL_VERIFICATION_GET",
+    };
+
+    const newOtpVerification = new OtpVerification(optVerification);
+    const savedOtpVerification = await newOtpVerification.save();
+
+    const emailBody = getEmailBodyForCommuterVerification(
+      otp,
+      foundParcel.commuter.name.firstName,
+      otpWaiting
+    );
+    await sendOtpEmail(foundParcel.commuter.contact.email.trim(), emailBody);
+    return {
+      verificationId: savedOtpVerification.verificationId,
+    };
+  }
+};
+
+const sendOtpEmail = async (toEmail, emailBody) => {
+  const params = {
+    Source: process.env.EMAIL_FROM,
+    Destination: {
+      ToAddresses: [toEmail],
+    },
+    Message: {
+      Subject: {
+        Data: "OTP for Commuter Verification",
+      },
+      Body: {
+        Html: {
+          Data: emailBody,
+        },
+      },
+    },
+  };
+
+  const emailResponse = await ses.sendEmail(params).promise();
 };
 
 const sendEmail = async (toEmail, emailBody, subject) => {
