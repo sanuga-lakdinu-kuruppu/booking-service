@@ -7,14 +7,18 @@ import {
 } from "express-validator";
 import { generateShortUuid } from "../../common/util/unique.mjs";
 import { bookingSchema } from "../schema/bookingSchema.mjs";
+import { bookingStatusSchema } from "../schema/bookingStatusSchema.mjs";
 import {
   createNewBooking,
   getAllBookings,
   getBookingById,
   getBookingByTripId,
   getBookingByEticket,
+  updateBookingStatusById,
 } from "../service/bookingService.mjs";
 import { log } from "../../common/util/log.mjs";
+import { Booking } from "../model/bookingModel.mjs";
+import { TripDuplication } from "../../tripDuplication/model/tripDuplicationModel.mjs";
 
 const router = Router();
 
@@ -174,6 +178,93 @@ router.get(
         log(baseLog, "SUCCESS", {});
         return response.send(foundBooking);
       }
+    } catch (error) {
+      log(baseLog, "FAILED", error.message);
+      return response.status(500).send({ error: "internal server error" });
+    }
+  }
+);
+
+router.patch(
+  `${API_PREFIX}/bookings/:bookingId/booking-status`,
+  param("bookingId")
+    .isNumeric()
+    .withMessage("bad request, bookingId should be a number"),
+  checkSchema(bookingStatusSchema),
+  async (request, response) => {
+    const baseLog = request.baseLog;
+
+    try {
+      const result = validationResult(request);
+      const {
+        params: { bookingId },
+      } = request;
+      const data = matchedData(request);
+      if (!result.isEmpty()) {
+        log(baseLog, "FAILED", result.errors[0]);
+        return response.status(400).send({ error: result.errors[0].msg });
+      }
+
+      const foundBooking = await Booking.findOne({ bookingId: bookingId });
+      if (!foundBooking) {
+        log(baseLog, "FAILED", "no booking found for this ticket");
+        return response
+          .status(404)
+          .send({ error: "no booking found for this ticket" });
+      }
+
+      const foundTripDuplication = await TripDuplication.findOne({
+        tripId: foundBooking.trip.tripId,
+      });
+
+      if (!foundTripDuplication) {
+        log(
+          baseLog,
+          "FAILED",
+          `this trip is not longer there, so cannot cancell.`
+        );
+        return response.status(404).send({
+          error: `this trip is not longer there, so cannot cancell.`,
+        });
+      }
+
+      if (foundTripDuplication.bookingStatus !== "ENABLED") {
+        log(
+          baseLog,
+          "FAILED",
+          `cannot cancell the booking, because this trip is in the ${foundTripDuplication.bookingStatus} state`
+        );
+        return response.status(404).send({
+          error: `cannot cancell the booking, because this trip is in the ${foundTripDuplication.bookingStatus} state`,
+        });
+      }
+
+      if (foundBooking.bookingStatus === "CANCELLED") {
+        log(baseLog, "FAILED", `you have already cancelled this booking.`);
+        return response.status(400).send({
+          error: `you have already cancelled this booking.`,
+        });
+      }
+
+      if (foundBooking.bookingStatus !== "PAID") {
+        log(
+          baseLog,
+          "FAILED",
+          `you cannot cancell the booking, because this booking is in ${foundBooking.bookingStatus} state.`
+        );
+        return response.status(400).send({
+          error: `you cannot cancell the booking, because this booking is in ${foundBooking.bookingStatus} state.`,
+        });
+      }
+
+      const updatedBooking = await updateBookingStatusById(data, bookingId);
+
+      if (!updatedBooking) {
+        log(baseLog, "FAILED", "resouce not found");
+        return response.status(404).send({ error: "resource not found" });
+      }
+      log(baseLog, "SUCCESS", {});
+      return response.send(updatedBooking);
     } catch (error) {
       log(baseLog, "FAILED", error.message);
       return response.status(500).send({ error: "internal server error" });
