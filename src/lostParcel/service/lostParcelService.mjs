@@ -126,13 +126,17 @@ export const updateLostParcel = async (parcelId, parcel) => {
     newParcel.takeAwayStation = parcel.takeAwayStation;
   }
   if (parcel.handedOverPersonFirstName) {
-    newParcel.handedOverPerson.firstName = parcel.handedOverPersonFirstName;
+    newParcel.handedOverPerson = {
+      firstName: parcel.handedOverPersonFirstName,
+    };
   }
   if (parcel.handedOverPersonLastName) {
-    newParcel.handedOverPerson.lastName = parcel.handedOverPersonLastName;
+    newParcel.handedOverPerson = {
+      lastName: parcel.handedOverPersonLastName,
+    };
   }
   if (parcel.handedOverPersonNIC) {
-    newParcel.handedOverPerson.nic = parcel.handedOverPersonNIC;
+    newParcel.handedOverPerson = { nic: parcel.handedOverPersonNIC };
   }
   if (parcel.status === "HANDED_OVER") {
     newParcel.handedOverAt = Date.now();
