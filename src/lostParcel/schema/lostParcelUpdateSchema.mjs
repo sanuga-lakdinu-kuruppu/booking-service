@@ -24,6 +24,7 @@ export const lostParcelUpdateSchema = {
     },
   },
   handedOverPersonFirstName: {
+    optional: true,
     isString: {
       errorMessage: "handedOverPersonFirstName should be a String",
     },
@@ -35,6 +36,7 @@ export const lostParcelUpdateSchema = {
     },
   },
   handedOverPersonLastName: {
+    optional: true,
     isString: {
       errorMessage: "handedOverPersonLastName should be a String",
     },
@@ -46,6 +48,7 @@ export const lostParcelUpdateSchema = {
     },
   },
   handedOverPersonNIC: {
+    optional: true,
     isString: {
       errorMessage: "handedOverPersonNIC should be a String",
     },
