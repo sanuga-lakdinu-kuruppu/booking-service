@@ -1767,3 +1767,544 @@ paths:
                   error:
                     type: string
                     example: "internal server error"
+  # ================= LOST PARCEL ==================
+  # ================================================
+  # ================================================
+  /booking-service/v1.7/lost-parcels:
+    post:
+      summary: Report a lost parcel
+      tags:
+      - Lost Parcel
+      description: Allows users to report a lost parcel by providing relevant information, such as eTicket, parcel type, name, and description.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                eTicket:
+                  type: string
+                  maxLength: 50
+                  description: The eTicket associated with the parcel.
+                type:
+                  type: string
+                  maxLength: 20
+                  description: The type of parcel (e.g., BAG, BOX).
+                name:
+                  type: string
+                  maxLength: 50
+                  description: A name or label for the lost parcel.
+                description:
+                  type: string
+                  maxLength: 1000
+                  description: Additional details about the lost parcel.
+              required:
+              - eTicket
+              - type
+              - name
+      responses:
+        "201":
+          description: Lost parcel successfully created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  parcelId:
+                    type: integer
+                    description: The unique ID of the created lost parcel.
+                  createdAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the lost parcel was created.
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the lost parcel was last updated.
+                  eTicket:
+                    type: string
+                    description: The eTicket associated with the parcel.
+                  referenceId:
+                    type: string
+                    description: A unique reference ID for the lost parcel.
+                  type:
+                    type: string
+                    description: The type of parcel.
+                  status:
+                    type: string
+                    description: The current status of the parcel report (e.g., REQUESTED).
+                  name:
+                    type: string
+                    description: The name or label for the lost parcel.
+                  description:
+                    type: string
+                    description: Additional details about the lost parcel.
+                  commuter:
+                    type: object
+                    properties:
+                      commuterId:
+                        type: integer
+                        description: The unique ID of the commuter.
+                      name:
+                        type: object
+                        properties:
+                          firstName:
+                            type: string
+                            description: The first name of the commuter.
+                          lastName:
+                            type: string
+                            description: The last name of the commuter.
+                      nic:
+                        type: string
+                        description: The NIC (National Identity Card) number of the commuter.
+                      contact:
+                        type: object
+                        properties:
+                          mobile:
+                            type: string
+                            description: The mobile number of the commuter.
+                          email:
+                            type: string
+                            format: email
+                            description: The email address of the commuter.
+        "400":
+          description: Bad request due to validation errors or other issues.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "404":
+          description: No relevant booking found for the provided eTicket.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    get:
+      summary: Get all lost parcels
+      tags:
+      - Lost Parcel
+      description: Retrieves a list of all reported lost parcels.
+      responses:
+        "200":
+          description: Successfully retrieved the list of lost parcels.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    parcelId:
+                      type: integer
+                      description: The unique ID of the lost parcel.
+                    createdAt:
+                      type: string
+                      format: date-time
+                      description: Timestamp when the lost parcel was created.
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      description: Timestamp when the lost parcel was last updated.
+                    eTicket:
+                      type: string
+                      description: The eTicket associated with the parcel.
+                    referenceId:
+                      type: string
+                      description: A unique reference ID for the lost parcel.
+                    type:
+                      type: string
+                      description: The type of parcel.
+                    status:
+                      type: string
+                      description: The current status of the parcel report (e.g., REQUESTED).
+                    name:
+                      type: string
+                      description: The name or label for the lost parcel.
+                    description:
+                      type: string
+                      description: Additional details about the lost parcel.
+                    commuter:
+                      type: object
+                      properties:
+                        commuterId:
+                          type: integer
+                          description: The unique ID of the commuter.
+                        name:
+                          type: object
+                          properties:
+                            firstName:
+                              type: string
+                              description: The first name of the commuter.
+                            lastName:
+                              type: string
+                              description: The last name of the commuter.
+                        nic:
+                          type: string
+                          description: The NIC (National Identity Card) number of the commuter.
+                        contact:
+                          type: object
+                          properties:
+                            mobile:
+                              type: string
+                              description: The mobile number of the commuter.
+                            email:
+                              type: string
+                              format: email
+                              description: The email address of the commuter.
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    paths:
+  /booking-service/v1.7/lost-parcels/{parcelId}:
+    get:
+      summary: Get a lost parcel by ID
+      tags:
+      - Lost Parcel
+      description: Retrieves the details of a specific lost parcel using its `parcelId`.
+      parameters:
+      - name: parcelId
+        in: path
+        required: true
+        description: The unique ID of the lost parcel.
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Successfully retrieved the lost parcel details.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  parcelId:
+                    type: integer
+                    description: The unique ID of the lost parcel.
+                  createdAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the lost parcel was created.
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the lost parcel was last updated.
+                  eTicket:
+                    type: string
+                    description: The eTicket associated with the parcel.
+                  referenceId:
+                    type: string
+                    description: A unique reference ID for the lost parcel.
+                  type:
+                    type: string
+                    description: The type of parcel.
+                  status:
+                    type: string
+                    description: The current status of the parcel report (e.g., REQUESTED).
+                  name:
+                    type: string
+                    description: The name or label for the lost parcel.
+                  description:
+                    type: string
+                    description: Additional details about the lost parcel.
+                  commuter:
+                    type: object
+                    properties:
+                      commuterId:
+                        type: integer
+                        description: The unique ID of the commuter.
+                      name:
+                        type: object
+                        properties:
+                          firstName:
+                            type: string
+                            description: The first name of the commuter.
+                          lastName:
+                            type: string
+                            description: The last name of the commuter.
+                      nic:
+                        type: string
+                        description: The NIC (National Identity Card) number of the commuter.
+                      contact:
+                        type: object
+                        properties:
+                          mobile:
+                            type: string
+                            description: The mobile number of the commuter.
+                          email:
+                            type: string
+                            format: email
+                            description: The email address of the commuter.
+        "400":
+          description: Bad request, invalid `parcelId`.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "404":
+          description: Resource not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    patch:
+      summary: Update a lost parcel by parcel ID
+      tags:
+      - Lost Parcel
+      description: Updates the details of a specific lost parcel using its `parcelId`.
+      parameters:
+      - name: parcelId
+        in: path
+        required: true
+        description: The ID of the lost parcel to update.
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                trip:
+                  type: object
+                  description: Updated trip details for the parcel.
+                status:
+                  type: string
+                  description: Updated status of the parcel.
+                name:
+                  type: string
+                  description: Updated name or label for the parcel.
+                description:
+                  type: string
+                  description: Updated description of the parcel.
+                handedOverAt:
+                  type: string
+                  format: date-time
+                  description: The timestamp when the parcel was handed over.
+                handedOverPerson:
+                  type: string
+                  description: Name of the person who handed over the parcel.
+              required: [] # Specify required fields if any
+      responses:
+        "200":
+          description: Successfully updated the lost parcel.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  parcelId:
+                    type: integer
+                    description: The unique ID of the lost parcel.
+                  trip:
+                    type: object
+                    description: Trip details of the parcel.
+                  eTicket:
+                    type: string
+                    description: eTicket associated with the parcel.
+                  createdAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the lost parcel was created.
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the lost parcel was last updated.
+                  referenceId:
+                    type: string
+                    description: Unique reference ID for the lost parcel.
+                  status:
+                    type: string
+                    description: Current status of the parcel report.
+                  type:
+                    type: string
+                    description: Type of parcel.
+                  name:
+                    type: string
+                    description: Name or label for the parcel.
+                  description:
+                    type: string
+                    description: Additional details about the lost parcel.
+                  commuter:
+                    type: object
+                    properties:
+                      name:
+                        type: object
+                        properties:
+                          firstName:
+                            type: string
+                            description: First name of the commuter.
+                      contact:
+                        type: object
+                        properties:
+                          email:
+                            type: string
+                            format: email
+                            description: Email address of the commuter.
+        "400":
+          description: Bad request, validation errors in input data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "404":
+          description: No parcel found for the given parcel ID.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /booking-service/v1.7/lost-parcels/referenceId/{referenceId}:
+    get:
+      summary: Get a lost parcel by reference ID
+      tags:
+      - Lost Parcel
+      security: []
+      description: Retrieves the details of a specific lost parcel using its `referenceId`. Triggers OTP verification if required and sends an email with the parcel status.
+      parameters:
+      - name: referenceId
+        in: path
+        required: true
+        description: The reference ID of the lost parcel.
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successfully retrieved the lost parcel or OTP verification details.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  properties:
+                    parcelId:
+                      type: integer
+                      description: The unique ID of the lost parcel.
+                    trip:
+                      type: object
+                      description: The trip information.
+                    eTicket:
+                      type: string
+                      description: The eTicket associated with the parcel.
+                    createdAt:
+                      type: string
+                      format: date-time
+                      description: Timestamp when the lost parcel was created.
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      description: Timestamp when the lost parcel was last updated.
+                    referenceId:
+                      type: string
+                      description: A unique reference ID for the lost parcel.
+                    status:
+                      type: string
+                      description: The current status of the parcel report.
+                    type:
+                      type: string
+                      description: The type of parcel.
+                    name:
+                      type: string
+                      description: The name or label for the lost parcel.
+                    description:
+                      type: string
+                      description: Additional details about the lost parcel.
+                    commuter:
+                      type: object
+                      properties:
+                        name:
+                          type: object
+                          properties:
+                            firstName:
+                              type: string
+                              description: The first name of the commuter.
+                        contact:
+                          type: object
+                          properties:
+                            email:
+                              type: string
+                              format: email
+                              description: The email address of the commuter.
+                - type: object
+                  properties:
+                    verificationId:
+                      type: string
+                      description: The unique verification ID for OTP verification.
+        "400":
+          description: Bad request, invalid `referenceId`.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "404":
+          description: No parcel found for this reference ID.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
