@@ -120,23 +120,23 @@ export const updateLostParcel = async (parcelId, parcel) => {
   if (!foundParcel) return "NO_PARCEL_FOUND";
 
   const newParcel = {
-    ...foundParcel,
     status: parcel.status,
-    takeAwayStation: {
-      name: parcel.takeAwayStation || foundParcel.takeAwayStation.name,
-    },
-    handedOverAt: parcel.status === "HANDED_OVER" ? Date.now() : null,
-    handedOverPerson: {
-      firstName:
-        parcel.handedOverPersonFirstName ||
-        foundParcel.handedOverPerson?.firstName,
-      lastName:
-        parcel.handedOverPersonLastName ||
-        foundParcel.handedOverPerson?.lastName,
-      nic: parcel.handedOverPersonNIC || foundParcel.handedOverPerson?.nic,
-    },
   };
-
+  if (parcel.takeAwayStation) {
+    newParcel.takeAwayStation = parcel.takeAwayStation;
+  }
+  if (parcel.handedOverPersonFirstName) {
+    newParcel.handedOverPerson.firstName = parcel.handedOverPersonFirstName;
+  }
+  if (parcel.handedOverPersonLastName) {
+    newParcel.handedOverPerson.lastName = parcel.handedOverPersonLastName;
+  }
+  if (parcel.handedOverPersonNIC) {
+    newParcel.handedOverPerson.nic = parcel.handedOverPersonNIC;
+  }
+  if (parcel.status === "HANDED_OVER") {
+    newParcel.handedOverAt = Date.now();
+  }
   const updatedParcel = await LostParcel.findOneAndUpdate(
     { parcelId: parcelId },
     newParcel,
