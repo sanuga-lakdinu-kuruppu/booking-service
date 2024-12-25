@@ -34,7 +34,6 @@ const optVerificationSchema = new mongoose.Schema(
     bookingId: {
       type: Number,
       required: true,
-      unique: true,
     },
     status: {
       type: String,
