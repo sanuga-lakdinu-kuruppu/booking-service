@@ -13,6 +13,7 @@ export const lostParcelUpdateSchema = {
     },
   },
   takeAwayStation: {
+    optional: true,
     isString: {
       errorMessage: "takeAwayStation should be a String",
     },
