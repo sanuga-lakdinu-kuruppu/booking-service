@@ -194,7 +194,7 @@ const bookingSchema = new mongoose.Schema(
         },
         description: {
           type: String,
-          maxlength: 100,
+          maxlength: 1000,
         },
       },
     },
