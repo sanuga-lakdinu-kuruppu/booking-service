@@ -51,10 +51,22 @@ router.get(`${API_PREFIX}/commuters`, async (request, response) => {
   const baseLog = request.baseLog;
 
   try {
+    const page = parseInt(request.query.page, 10) || 1;
+    const limit = parseInt(request.query.limit, 10) || 10;
+    const skip = (page - 1) * limit;
+
     const foundCommuters = await getAllCommuters();
+    const paginatedCommuters = foundCommuters.slice(skip, skip + limit);
+    const totalCommuters = foundCommuters.length;
+    const totalPages = Math.ceil(totalCommuters / limit);
 
     log(baseLog, "SUCCESS", {});
-    return response.send(foundCommuters);
+    return response.send({
+      data: paginatedCommuters,
+      currentPage: page,
+      totalPages,
+      total: totalCommuters,
+    });
   } catch (error) {
     log(baseLog, "FAILED", error.message);
     return response.status(500).send({ error: "internal server error" });
