@@ -106,51 +106,86 @@ paths:
       summary: Get all commuters
       tags:
       - Commuter
-      description: Retrieve a list of all commuters.
+      description: Retrieve a paginated list of all commuters.
+      parameters:
+      - name: page
+        in: query
+        description: Page number (1-based).
+        required: false
+        schema:
+          type: integer
+          example: 1
+      - name: size
+        in: query
+        description: Number of items per page.
+        required: false
+        schema:
+          type: integer
+          example: 10
       responses:
         200:
-          description: A list of commuters.
+          description: A paginated list of commuters.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    commuterId:
-                      type: number
-                      example: 43814728
-                    name:
+                type: object
+                properties:
+                  currentPage:
+                    type: integer
+                    example: 1
+                  totalPages:
+                    type: integer
+                    example: 5
+                  totalItems:
+                    type: integer
+                    example: 50
+                  commuters:
+                    type: array
+                    items:
                       type: object
                       properties:
-                        firstName:
+                        commuterId:
+                          type: number
+                          example: 43814728
+                        name:
+                          type: object
+                          properties:
+                            firstName:
+                              type: string
+                              example: "Sanuga"
+                            lastName:
+                              type: string
+                              example: "Kuruppu"
+                        nic:
                           type: string
-                          example: "Sanuga"
-                        lastName:
+                          example: "200127201635"
+                        contact:
+                          type: object
+                          properties:
+                            mobile:
+                              type: string
+                              example: "+94778060563"
+                            email:
+                              type: string
+                              example: "sanugakuruppu.info@gmail.com"
+                        createdAt:
                           type: string
-                          example: "Kuruppu"
-                    nic:
-                      type: string
-                      example: "200127201635"
-                    contact:
-                      type: object
-                      properties:
-                        mobile:
+                          format: date-time
+                          example: "2024-12-05T21:40:27.379Z"
+                        updatedAt:
                           type: string
-                          example: "+94778060563"
-                        email:
-                          type: string
-                          example: "sanugakuruppu.info@gmail.com"
-                    createdAt:
-                      type: string
-                      format: date-time
-                      example: "2024-12-05T21:40:27.379Z"
-                    updatedAt:
-                      type: string
-                      format: date-time
-                      example: "2024-12-05T21:40:27.379Z"
+                          format: date-time
+                          example: "2024-12-05T21:40:27.379Z"
         500:
           description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal server error"
   /booking-service/v1.7/commuters/{commuterId}:
     get:
       summary: Get a commuter by ID
@@ -342,189 +377,220 @@ paths:
       summary: Retrieve all bookings
       tags:
       - Booking
-      description: Fetch a list of all bookings, including trip, commuter, and booking details.
+      description: Fetch a paginated list of all bookings, including trip, commuter, and booking details.
+      parameters:
+      - name: page
+        in: query
+        description: The page number to retrieve (default is 1).
+        required: false
+        schema:
+          type: integer
+          example: 1
+      - name: limit
+        in: query
+        description: The number of items per page (default is 10).
+        required: false
+        schema:
+          type: integer
+          example: 10
       responses:
         200:
           description: List of bookings retrieved successfully.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    bookingId:
-                      type: number
-                      example: 70543086
-                    trip:
+                type: object
+                properties:
+                  currentPage:
+                    type: integer
+                    example: 1
+                    description: The current page number.
+                  totalPages:
+                    type: integer
+                    example: 5
+                    description: The total number of pages available.
+                  totalItems:
+                    type: integer
+                    example: 50
+                    description: The total number of bookings.
+                  data:
+                    type: array
+                    description: List of bookings for the current page.
+                    items:
                       type: object
                       properties:
-                        tripId:
+                        bookingId:
                           type: number
-                          example: 81957915
-                        tripNumber:
+                          example: 70543086
+                        trip:
+                          type: object
+                          properties:
+                            tripId:
+                              type: number
+                              example: 81957915
+                            tripNumber:
+                              type: string
+                              example: "TRIP-1edfa22f-0f88-4cd0-83ca-5135f2133230"
+                            tripDate:
+                              type: string
+                              format: date-time
+                              example: "2024-12-17T00:00:00.000Z"
+                            startLocation:
+                              type: object
+                              properties:
+                                coordinates:
+                                  type: object
+                                  properties:
+                                    lat:
+                                      type: number
+                                      format: double
+                                      example: 6.933549671456952
+                                    log:
+                                      type: number
+                                      format: double
+                                      example: 79.85550999641683
+                                stationId:
+                                  type: number
+                                  example: 60287861
+                                name:
+                                  type: string
+                                  example: "Colombo"
+                            endLocation:
+                              type: object
+                              properties:
+                                coordinates:
+                                  type: object
+                                  properties:
+                                    lat:
+                                      type: number
+                                      format: double
+                                      example: 6.933549671456952
+                                    log:
+                                      type: number
+                                      format: double
+                                      example: 79.85550999641683
+                                stationId:
+                                  type: number
+                                  example: 75776150
+                                name:
+                                  type: string
+                                  example: "Matara"
+                            schedule:
+                              type: object
+                              properties:
+                                scheduleId:
+                                  type: number
+                                  example: 57500669
+                                departureTime:
+                                  type: string
+                                  example: "01:30"
+                                arrivalTime:
+                                  type: string
+                                  example: "10:00"
+                            vehicle:
+                              type: object
+                              properties:
+                                vehicleId:
+                                  type: number
+                                  example: 82437327
+                                registrationNumber:
+                                  type: string
+                                  example: "ABC12345"
+                                model:
+                                  type: string
+                                  example: "Volvo 960"
+                                capacity:
+                                  type: number
+                                  example: 50
+                                type:
+                                  type: string
+                                  example: "Luxury"
+                                airCondition:
+                                  type: boolean
+                                  example: true
+                                adjustableSeats:
+                                  type: boolean
+                                  example: true
+                                chargingCapability:
+                                  type: boolean
+                                  example: false
+                                restStops:
+                                  type: boolean
+                                  example: true
+                                movie:
+                                  type: boolean
+                                  example: false
+                                music:
+                                  type: boolean
+                                  example: true
+                                cupHolder:
+                                  type: boolean
+                                  example: true
+                                emergencyExit:
+                                  type: boolean
+                                  example: true
+                            cancellationPolicy:
+                              type: object
+                              properties:
+                                policyId:
+                                  type: number
+                                  example: 67868134
+                                policyName:
+                                  type: string
+                                  example: "Health Insurance"
+                                type:
+                                  type: string
+                                  example: "General"
+                                description:
+                                  type: string
+                                  example: "Comprehensive health coverage for all employees."
+                        commuter:
+                          type: object
+                          properties:
+                            commuterId:
+                              type: number
+                              example: 52493143
+                            name:
+                              type: object
+                              properties:
+                                firstName:
+                                  type: string
+                                  example: "Sanuga"
+                                lastName:
+                                  type: string
+                                  example: "Kuruppu"
+                            contact:
+                              type: object
+                              properties:
+                                mobile:
+                                  type: string
+                                  example: "+94778060563"
+                                email:
+                                  type: string
+                                  example: "sanugakuruppu.info@gmail.com"
+                            nic:
+                              type: string
+                              example: "200127201635"
+                        seatNumber:
+                          type: number
+                          example: 41
+                        bookingStatus:
                           type: string
-                          example: "TRIP-1edfa22f-0f88-4cd0-83ca-5135f2133230"
-                        tripDate:
+                          example: "EXPIRED"
+                        ticketStatus:
+                          type: string
+                          example: "NOT_USED"
+                        createdAt:
                           type: string
                           format: date-time
-                          example: "2024-12-17T00:00:00.000Z"
-                        startLocation:
-                          type: object
-                          properties:
-                            coordinates:
-                              type: object
-                              properties:
-                                lat:
-                                  type: number
-                                  format: double
-                                  example: 6.933549671456952
-                                log:
-                                  type: number
-                                  format: double
-                                  example: 79.85550999641683
-                            stationId:
-                              type: number
-                              example: 60287861
-                            name:
-                              type: string
-                              example: "Colombo"
-                        endLocation:
-                          type: object
-                          properties:
-                            coordinates:
-                              type: object
-                              properties:
-                                lat:
-                                  type: number
-                                  format: double
-                                  example: 6.933549671456952
-                                log:
-                                  type: number
-                                  format: double
-                                  example: 79.85550999641683
-                            stationId:
-                              type: number
-                              example: 75776150
-                            name:
-                              type: string
-                              example: "Matara"
-                        schedule:
-                          type: object
-                          properties:
-                            scheduleId:
-                              type: number
-                              example: 57500669
-                            departureTime:
-                              type: string
-                              example: "01:30"
-                            arrivalTime:
-                              type: string
-                              example: "10:00"
-                        vehicle:
-                          type: object
-                          properties:
-                            vehicleId:
-                              type: number
-                              example: 82437327
-                            registrationNumber:
-                              type: string
-                              example: "ABC12345"
-                            model:
-                              type: string
-                              example: "Volvo 960"
-                            capacity:
-                              type: number
-                              example: 50
-                            type:
-                              type: string
-                              example: "Luxury"
-                            airCondition:
-                              type: boolean
-                              example: true
-                            adjustableSeats:
-                              type: boolean
-                              example: true
-                            chargingCapability:
-                              type: boolean
-                              example: false
-                            restStops:
-                              type: boolean
-                              example: true
-                            movie:
-                              type: boolean
-                              example: false
-                            music:
-                              type: boolean
-                              example: true
-                            cupHolder:
-                              type: boolean
-                              example: true
-                            emergencyExit:
-                              type: boolean
-                              example: true
-                        cancellationPolicy:
-                          type: object
-                          properties:
-                            policyId:
-                              type: number
-                              example: 67868134
-                            policyName:
-                              type: string
-                              example: "Health Insurance"
-                            type:
-                              type: string
-                              example: "General"
-                            description:
-                              type: string
-                              example: "Comprehensive health coverage for all employees."
-                    commuter:
-                      type: object
-                      properties:
-                        commuterId:
-                          type: number
-                          example: 52493143
-                        name:
-                          type: object
-                          properties:
-                            firstName:
-                              type: string
-                              example: "Sanuga"
-                            lastName:
-                              type: string
-                              example: "Kuruppu"
-                        contact:
-                          type: object
-                          properties:
-                            mobile:
-                              type: string
-                              example: "+94778060563"
-                            email:
-                              type: string
-                              example: "sanugakuruppu.info@gmail.com"
-                        nic:
+                          example: "2024-12-14T11:54:39.801Z"
+                        updatedAt:
                           type: string
-                          example: "200127201635"
-                    seatNumber:
-                      type: number
-                      example: 41
-                    bookingStatus:
-                      type: string
-                      example: "EXPIRED"
-                    ticketStatus:
-                      type: string
-                      example: "NOT_USED"
-                    createdAt:
-                      type: string
-                      format: date-time
-                      example: "2024-12-14T11:54:39.801Z"
-                    updatedAt:
-                      type: string
-                      format: date-time
-                      example: "2024-12-14T11:55:21.193Z"
-                    price:
-                      type: number
-                      example: 7500
+                          format: date-time
+                          example: "2024-12-14T11:55:21.193Z"
+                        price:
+                          type: number
+                          example: 7500
         500:
           description: Internal server error.
           content:
@@ -1336,60 +1402,92 @@ paths:
       summary: Retrieve all booking payments
       tags:
       - Booking Payment
-      description: Fetch a list of all booking payments along with their details.
+      description: Fetch a paginated list of all booking payments along with their details.
+      parameters:
+      - name: page
+        in: query
+        description: The page number to retrieve (default is 1).
+        required: false
+        schema:
+          type: integer
+          example: 1
+      - name: limit
+        in: query
+        description: The number of items per page (default is 10).
+        required: false
+        schema:
+          type: integer
+          example: 10
       responses:
-        200:
+        "200":
           description: Successfully retrieved booking payments.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    paymentId:
-                      type: number
-                      example: 20931686
-                      description: The unique ID of the payment.
-                    paymentAt:
-                      type: string
-                      format: date-time
-                      example: "2024-12-18T16:06:29.637Z"
-                      description: The date and time of the payment.
-                    amount:
-                      type: number
-                      example: 7500
-                      description: The total amount of the payment.
-                    method:
-                      type: string
-                      example: "CARD"
-                      description: The payment method used.
-                    type:
-                      type: string
-                      example: "BOOKING"
-                      description: The type of payment.
-                    status:
-                      type: string
-                      example: "PENDING"
-                      description: The current status of the payment.
-                    booking:
+                type: object
+                properties:
+                  currentPage:
+                    type: integer
+                    example: 1
+                    description: The current page number.
+                  totalPages:
+                    type: integer
+                    example: 5
+                    description: The total number of pages available.
+                  totalItems:
+                    type: integer
+                    example: 50
+                    description: The total number of booking payments.
+                  data:
+                    type: array
+                    description: List of booking payments on the current page.
+                    items:
                       type: object
                       properties:
-                        bookingId:
+                        paymentId:
                           type: number
-                          example: 16702615
-                          description: The unique ID of the associated booking.
-                    createdAt:
-                      type: string
-                      format: date-time
-                      example: "2024-12-18T16:06:29.638Z"
-                      description: The date and time the payment was created.
-                    updatedAt:
-                      type: string
-                      format: date-time
-                      example: "2024-12-18T16:06:29.638Z"
-                      description: The date and time the payment was last updated.
-        500:
+                          example: 20931686
+                          description: The unique ID of the payment.
+                        paymentAt:
+                          type: string
+                          format: date-time
+                          example: "2024-12-18T16:06:29.637Z"
+                          description: The date and time of the payment.
+                        amount:
+                          type: number
+                          example: 7500
+                          description: The total amount of the payment.
+                        method:
+                          type: string
+                          example: "CARD"
+                          description: The payment method used.
+                        type:
+                          type: string
+                          example: "BOOKING"
+                          description: The type of payment.
+                        status:
+                          type: string
+                          example: "PENDING"
+                          description: The current status of the payment.
+                        booking:
+                          type: object
+                          description: Details of the associated booking.
+                          properties:
+                            bookingId:
+                              type: number
+                              example: 16702615
+                              description: The unique ID of the associated booking.
+                        createdAt:
+                          type: string
+                          format: date-time
+                          example: "2024-12-18T16:06:29.638Z"
+                          description: The date and time the payment was created.
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          example: "2024-12-18T16:06:29.638Z"
+                          description: The date and time the payment was last updated.
+        "500":
           description: Internal server error.
           content:
             application/json:
@@ -1398,7 +1496,7 @@ paths:
                 properties:
                   error:
                     type: string
-                    example: "internal server error"
+                    example: "Internal server error"
   /booking-service/v1.7/booking-payments/paymentId/{paymentId}:
     get:
       summary: Retrieve booking payment by ID
@@ -1897,77 +1995,111 @@ paths:
                   error:
                     type: string
     get:
-      summary: Get all lost parcels
+      summary: Get all lost parcels with pagination
       tags:
       - Lost Parcel
       description: Retrieves a list of all reported lost parcels.
+      parameters:
+      - name: page
+        in: query
+        description: The page number to retrieve (default is 1).
+        required: false
+        schema:
+          type: integer
+          example: 1
+      - name: limit
+        in: query
+        description: The number of items per page (default is 10).
+        required: false
+        schema:
+          type: integer
+          example: 10
       responses:
         "200":
           description: Successfully retrieved the list of lost parcels.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    parcelId:
-                      type: integer
-                      description: The unique ID of the lost parcel.
-                    createdAt:
-                      type: string
-                      format: date-time
-                      description: Timestamp when the lost parcel was created.
-                    updatedAt:
-                      type: string
-                      format: date-time
-                      description: Timestamp when the lost parcel was last updated.
-                    eTicket:
-                      type: string
-                      description: The eTicket associated with the parcel.
-                    referenceId:
-                      type: string
-                      description: A unique reference ID for the lost parcel.
-                    type:
-                      type: string
-                      description: The type of parcel.
-                    status:
-                      type: string
-                      description: The current status of the parcel report (e.g., REQUESTED).
-                    name:
-                      type: string
-                      description: The name or label for the lost parcel.
-                    description:
-                      type: string
-                      description: Additional details about the lost parcel.
-                    commuter:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: List of lost parcels.
+                    items:
                       type: object
                       properties:
-                        commuterId:
+                        parcelId:
                           type: integer
-                          description: The unique ID of the commuter.
-                        name:
-                          type: object
-                          properties:
-                            firstName:
-                              type: string
-                              description: The first name of the commuter.
-                            lastName:
-                              type: string
-                              description: The last name of the commuter.
-                        nic:
+                          description: The unique ID of the lost parcel.
+                        createdAt:
                           type: string
-                          description: The NIC (National Identity Card) number of the commuter.
-                        contact:
+                          format: date-time
+                          description: Timestamp when the lost parcel was created.
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          description: Timestamp when the lost parcel was last updated.
+                        eTicket:
+                          type: string
+                          description: The eTicket associated with the parcel.
+                        referenceId:
+                          type: string
+                          description: A unique reference ID for the lost parcel.
+                        type:
+                          type: string
+                          description: The type of parcel.
+                        status:
+                          type: string
+                          description: The current status of the parcel report (e.g., REQUESTED).
+                        name:
+                          type: string
+                          description: The name or label for the lost parcel.
+                        description:
+                          type: string
+                          description: Additional details about the lost parcel.
+                        commuter:
                           type: object
+                          description: Details of the commuter associated with the lost parcel.
                           properties:
-                            mobile:
+                            commuterId:
+                              type: integer
+                              description: The unique ID of the commuter.
+                            name:
+                              type: object
+                              description: The name of the commuter.
+                              properties:
+                                firstName:
+                                  type: string
+                                  description: The first name of the commuter.
+                                lastName:
+                                  type: string
+                                  description: The last name of the commuter.
+                            nic:
                               type: string
-                              description: The mobile number of the commuter.
-                            email:
-                              type: string
-                              format: email
-                              description: The email address of the commuter.
+                              description: The NIC (National Identity Card) number of the commuter.
+                            contact:
+                              type: object
+                              description: Contact details of the commuter.
+                              properties:
+                                mobile:
+                                  type: string
+                                  description: The mobile number of the commuter.
+                                email:
+                                  type: string
+                                  format: email
+                                  description: The email address of the commuter.
+                  currentPage:
+                    type: integer
+                    description: The current page number.
+                    example: 1
+                  totalPages:
+                    type: integer
+                    description: Total number of pages available.
+                    example: 5
+                  totalParcels:
+                    type: integer
+                    description: Total number of lost parcels.
+                    example: 100
         "500":
           description: Internal server error.
           content:
@@ -1977,7 +2109,7 @@ paths:
                 properties:
                   error:
                     type: string
-                    paths:
+                    description: Description of the error.
   /booking-service/v1.7/lost-parcels/{parcelId}:
     get:
       summary: Get a lost parcel by ID
