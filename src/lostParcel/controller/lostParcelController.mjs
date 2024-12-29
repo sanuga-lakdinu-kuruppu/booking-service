@@ -70,10 +70,22 @@ router.get(`${API_PREFIX}/lost-parcels`, async (request, response) => {
   const baseLog = request.baseLog;
 
   try {
+    const page = parseInt(request.query.page, 10) || 1;
+    const limit = parseInt(request.query.limit, 10) || 10;
+    const skip = (page - 1) * limit;
+
     const foundParcels = await getAllLostParcels();
+    const paginatedParcels = foundParcels.slice(skip, skip + limit);
+    const totalParcels = foundParcels.length;
+    const totalPages = Math.ceil(totalParcels / limit);
 
     log(baseLog, "SUCCESS", {});
-    return response.send(foundParcels);
+    return response.send({
+      data: paginatedParcels,
+      currentPage: page,
+      totalPages,
+      total: totalParcels,
+    });
   } catch (error) {
     log(baseLog, "FAILED", error.message);
     return response.status(500).send({ error: "internal server error" });
