@@ -74,10 +74,22 @@ router.get(`${API_PREFIX}/bookings`, async (request, response) => {
   const baseLog = request.baseLog;
 
   try {
+    const page = parseInt(request.query.page, 10) || 1;
+    const limit = parseInt(request.query.limit, 10) || 10;
+    const skip = (page - 1) * limit;
+
     const foundBookings = await getAllBookings();
+    const paginatedBookings = foundBookings.slice(skip, skip + limit);
+    const totalBookings = foundBookings.length;
+    const totalPages = Math.ceil(totalBookings / limit);
 
     log(baseLog, "SUCCESS", {});
-    return response.send(foundBookings);
+    return response.send({
+      data: paginatedBookings,
+      currentPage: page,
+      totalPages,
+      total: totalBookings,
+    });
   } catch (error) {
     log(baseLog, "FAILED", error.message);
     return response.status(500).send({ error: "internal server error" });
